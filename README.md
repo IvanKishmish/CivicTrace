@@ -39,4 +39,4 @@ The prototype will start with one verified category and a small sample of real p
 
 ## Status
 
-Planning and data validation. API field availability, procurement selection rules, exact locations, and links to city budget records must be confirmed from real examples before being promised in the product1.
+Planning and data validation. API field availability, procurement selection rules, exact locations, and links to city budget records must be confirmed from real examples before being promised in the product.
