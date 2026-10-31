@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/backend/">
+    <Project Path="src/backend/CivicTrace.Domain/CivicTrace.Domain.csproj" />
+    <Project Path="src/backend/CivicTrace.Application/CivicTrace.Application.csproj" />
+    <Project Path="src/backend/CivicTrace.Persistence/CivicTrace.Persistence.csproj" />
+    <Project Path="src/backend/CivicTrace.WebApi/CivicTrace.WebApi.csproj" />
+  </Folder>
+</Solution>
