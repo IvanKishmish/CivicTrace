@@ -6,4 +6,19 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="12.2.0" />
+      <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.2.0" />
+      <PackageReference Include="Mediator.Abstractions" Version="3.1.0-rc.1" />
+      <PackageReference Include="Mediator.SourceGenerator" Version="3.1.0-rc.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\CivicTrace.Domain\CivicTrace.Domain.csproj" />
+    </ItemGroup>
+
 </Project>
