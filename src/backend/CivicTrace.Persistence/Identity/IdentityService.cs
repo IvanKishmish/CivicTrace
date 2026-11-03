@@ -90,6 +90,17 @@ public sealed class IdentityService(
         return roles.ToList();
     }
 
+    public async Task<IReadOnlyDictionary<Guid, string>> GetEmailsAsync(
+        IReadOnlyCollection<Guid> userIds, CancellationToken ct = default)
+    {
+        if (userIds.Count == 0)
+            return new Dictionary<Guid, string>();
+
+        return await userManager.Users
+            .Where(u => userIds.Contains(u.Id) && u.Email != null)
+            .ToDictionaryAsync(u => u.Id, u => u.Email!, ct);
+    }
+
     public async Task<bool> IsUserLockedOutAsync(Guid userId, CancellationToken ct = default)
     {
         var user = await userManager.FindByIdAsync(userId.ToString());
