@@ -9,6 +9,7 @@ public interface IIdentityService
 
     Task<ErrorOr<Updated>> AssignRoleAsync(Guid userId, string role, CancellationToken ct = default);
     Task<IReadOnlyList<string>> GetUserRolesAsync(Guid userId, CancellationToken ct = default);
+    Task<IReadOnlyDictionary<Guid, string>> GetEmailsAsync(IReadOnlyCollection<Guid> userIds, CancellationToken ct = default);
     Task<bool> IsUserLockedOutAsync(Guid userId, CancellationToken ct = default);
 
     Task StoreRefreshTokenAsync(Guid userId, Guid familyId, string refreshTokenHash, TimeSpan lifetime, CancellationToken ct = default);

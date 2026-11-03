@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CivicTrace.Application.Common.Interfaces;
 
-public interface IAppDbContext
+public interface IAppDbContext : IDisposable, IAsyncDisposable
 {
     DbSet<Procurement> Procurements { get; }
     DbSet<Organization> Organizations { get; }
     DbSet<UserProfile> UserProfiles { get; }
 
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    Task<int> SaveChangesAsync(CancellationToken ct = default);
 }
