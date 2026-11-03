@@ -1,0 +1,846 @@
+[
+  {
+    "id": "UA-2026-01-15-013808-a",
+    "apiId": "33c8473878374484a3fde02450ac73b9",
+    "planId": null,
+    "title": "Розподіл газу (розподіл природного газу)",
+    "kind": "Послуги",
+    "cpvCode": "65210000-8",
+    "cpvName": "Розподіл газу",
+    "procurementType": "Закупівля без використання електронної системи",
+    "buyer": "ПОЛТАВСЬКА РАЙОННА РАДА",
+    "buyerEdrpou": "21049708",
+    "buyerAddress": "38714, Україна, Полтавська область, с. Супрунівка, вул. Соборна, буд. 3",
+    "contractor": "АКЦІОНЕРНЕ ТОВАРИСТВО \"ОПЕРАТОР ГАЗОРОЗПОДІЛЬНОЇ СИСТЕМИ \"ПОЛТАВАГАЗ\"\"",
+    "contractorEdrpou": "03351912",
+    "expectedAmount": 157431.3,
+    "contractAmount": 157431.3,
+    "currency": "UAH",
+    "expectedVatIncluded": true,
+    "contractVatIncluded": true,
+    "status": "contract_signed",
+    "statusLabel": "Договір укладено",
+    "sourceStatus": "Завершена",
+    "executionStatus": "not_confirmed",
+    "address": "м. Полтава, вул. Шевченка, 5Г",
+    "placeType": "delivery",
+    "latitude": 49.5852,
+    "longitude": 34.551,
+    "hasCoordinates": true,
+    "coordinatesStatus": "needs_check",
+    "periodStart": "2026-01-01",
+    "periodEnd": "2026-12-31",
+    "funding": [
+      {
+        "source": "Місцевий бюджет",
+        "expenditureCode": "ТПКВКМБ 0150 – Організаційне, інформаційно-аналітичне та матеріально-технічне забезпечення діяльності обласної ради, районної ради, районної у місті ради (у разі її створення), міської, селищної, сільської рад",
+        "territory": "Україна, місто Полтава",
+        "amount": 157431.3
+      }
+    ],
+    "nonCompetitiveBasis": {
+      "legalBasis": "Постанова КМУ від 12.10.2022 № 1178, абзац 6 підпункту 5 пункту 13",
+      "justification": "Укладення договору про закупівлю з постачальником \"останньої надії\" або з постачальником універсальної послуги на постачання електричної енергії або природного газу",
+      "sourceUrl": "https://prozorro.gov.ua/tender/UA-2026-01-15-013808-a"
+    },
+    "bidsListComplete": false,
+    "bids": [
+      {
+        "bidder": "АКЦІОНЕРНЕ ТОВАРИСТВО \"ОПЕРАТОР ГАЗОРОЗПОДІЛЬНОЇ СИСТЕМИ \"ПОЛТАВАГАЗ\"\"",
+        "bidderEdrpou": "03351912",
+        "amount": 157431.3,
+        "vatIncluded": true,
+        "outcome": "winner"
+      }
+    ],
+    "events": [
+      {
+        "date": "2026-01-15",
+        "stage": "protocol_published",
+        "title": "Електронний протокол рішення про проведення закупівлі",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2026-01-15-013808-a"
+      },
+      {
+        "date": "2026-01-15",
+        "stage": "reported",
+        "title": "Опубліковано протокол розкриття пропозицій; переможець — АТ «ОПЕРАТОР ГАЗОРОЗПОДІЛЬНОЇ СИСТЕМИ «ПОЛТАВАГАЗ», 157 431,30 UAH з ПДВ",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2026-01-15-013808-a"
+      },
+      {
+        "date": null,
+        "stage": "contract_signed",
+        "title": "Укладено договір UA-2026-01-15-013808-a-c1 на суму 157 431,30 UAH з ПДВ",
+        "dateNote": "Дату підписання на сторінці закупівлі не вказано; вона є на сторінці договору",
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2026-01-15-013808-a"
+      }
+    ],
+    "sourceUrl": "https://prozorro.gov.ua/tender/UA-2026-01-15-013808-a",
+    "notes": [],
+    "missingData": [
+      "Відомостей про фактичне виконання (постачання, надання послуг, роботи) не знайдено в перевірених джерелах."
+    ],
+    "needsCheck": [],
+    "verifiedAt": "2026-10-30",
+    "verifiedBy": null
+  },
+  {
+    "id": "UA-2025-12-05-009237-a",
+    "apiId": "ca327925f5e4412cb69103cb21719efe",
+    "planId": "UA-P-2025-12-05-011082-a",
+    "title": "Електрична енергія, з розподілом",
+    "kind": "Товари",
+    "cpvCode": "09310000-5",
+    "cpvName": "Електрична енергія",
+    "procurementType": "Запит (ціни) пропозицій",
+    "buyer": "ПОЛТАВСЬКА РАЙОННА РАДА",
+    "buyerEdrpou": "21049708",
+    "buyerAddress": "38714, Україна, Полтавська область, с. Супрунівка, вул. Соборна, буд. 3",
+    "contractor": "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ \"ПОЛТАВАЕНЕРГОЗБУТ\"",
+    "contractorEdrpou": "42223804",
+    "expectedAmount": 928800.0,
+    "contractAmount": 920106.36,
+    "currency": "UAH",
+    "expectedVatIncluded": true,
+    "contractVatIncluded": true,
+    "status": "contract_signed",
+    "statusLabel": "Договір укладено",
+    "sourceStatus": "Завершена",
+    "executionStatus": "not_confirmed",
+    "address": "м. Полтава, вул. Шевченка, 5Г",
+    "placeType": "delivery",
+    "latitude": 49.5852,
+    "longitude": 34.551,
+    "hasCoordinates": true,
+    "coordinatesStatus": "needs_check",
+    "periodStart": "2026-01-01",
+    "periodEnd": "2026-12-31",
+    "funding": [
+      {
+        "source": "Місцевий бюджет",
+        "expenditureCode": "ТПКВКМБ 0150 – Організаційне, інформаційно-аналітичне та матеріально-технічне забезпечення діяльності обласної ради, районної ради, районної у місті ради (у разі її створення), міської, селищної, сільської рад",
+        "territory": "Україна, місто Полтава",
+        "amount": 928800.0
+      }
+    ],
+    "nonCompetitiveBasis": null,
+    "bidsListComplete": true,
+    "bids": [
+      {
+        "bidder": "ТОВ \"ГАЗЕНЕРГО-ТРЕЙД\"",
+        "bidderEdrpou": "42827548",
+        "amount": 663381.79,
+        "vatIncluded": true,
+        "outcome": "rejected"
+      },
+      {
+        "bidder": "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ \"ПОЛТАВАЕНЕРГОЗБУТ\"",
+        "bidderEdrpou": "42223804",
+        "amount": 920106.36,
+        "vatIncluded": true,
+        "outcome": "winner"
+      },
+      {
+        "bidder": "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ \"ПЕРШИЙ ЕНЕРГЕТИЧНИЙ ОПЕРАТОР\"",
+        "bidderEdrpou": "41009874",
+        "amount": 920106.36,
+        "vatIncluded": true,
+        "outcome": null
+      },
+      {
+        "bidder": "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ \"ЛЮМУС УКРАЇНА\"",
+        "bidderEdrpou": "46046121",
+        "amount": 920106.52,
+        "vatIncluded": true,
+        "outcome": null
+      },
+      {
+        "bidder": "Товариство з обмеженою відповідальністю \"Запоріжжяелектропостачання\"",
+        "bidderEdrpou": "42093239",
+        "amount": 920107.3,
+        "vatIncluded": true,
+        "outcome": null
+      },
+      {
+        "bidder": "ТОВ \"ЦЕНТРГАЗПОСТАЧ\"",
+        "bidderEdrpou": "44092846",
+        "amount": 922233.6,
+        "vatIncluded": true,
+        "outcome": null
+      },
+      {
+        "bidder": "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ \"ЯСНО+\"",
+        "bidderEdrpou": "45179093",
+        "amount": 923563.3,
+        "vatIncluded": true,
+        "outcome": null
+      },
+      {
+        "bidder": "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ \"АСҐАРД ЕЛЕКТРІСІТІ\"",
+        "bidderEdrpou": "45225118",
+        "amount": 924480.0,
+        "vatIncluded": true,
+        "outcome": null
+      }
+    ],
+    "events": [
+      {
+        "date": "2025-12-05",
+        "stage": "announced",
+        "title": "Оголошення про проведення закупівлі (запит цін пропозицій)",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a"
+      },
+      {
+        "date": "2025-12-05",
+        "stage": "protocol_published",
+        "title": "Електронний протокол рішення про проведення закупівлі",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a"
+      },
+      {
+        "date": "2025-12-10",
+        "stage": "bids_opened",
+        "title": "Розкриття пропозицій: 8 учасників",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a"
+      },
+      {
+        "date": "2025-12-10",
+        "stage": "reported",
+        "title": "Опубліковано протокол розкриття пропозицій",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a"
+      },
+      {
+        "date": "2025-12-10",
+        "stage": "bid_rejected",
+        "title": "Пропозицію ТОВ «ГАЗЕНЕРГО-ТРЕЙД» на суму 663 381,79 UAH з ПДВ відхилено",
+        "dateNote": "Дата публікації протоколу; дату повідомлення на сторінці закупівлі не вказано",
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a"
+      },
+      {
+        "date": "2025-12-10",
+        "stage": "award_notice",
+        "title": "Повідомлення про намір укласти договір з ТОВ «ПОЛТАВАЕНЕРГОЗБУТ»",
+        "dateNote": "Дата публікації протоколу; дату повідомлення на сторінці закупівлі не вказано",
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a"
+      },
+      {
+        "date": null,
+        "stage": "contract_signed",
+        "title": "Укладено договір UA-2025-12-05-009237-a-a1 на суму 920 106,36 UAH з ПДВ",
+        "dateNote": "Дату підписання на сторінці закупівлі не вказано; вона є на сторінці договору",
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a"
+      }
+    ],
+    "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a",
+    "notes": [
+      {
+        "text": "Розкрито 8 пропозицій. Пропозицію ТОВ «ГАЗЕНЕРГО-ТРЕЙД» на суму 663 381,79 UAH з ПДВ відхилено.",
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a"
+      }
+    ],
+    "missingData": [
+      "Причину відхилення пропозиції на сторінці закупівлі не показано: повідомлення про відхилення є окремим PDF-документом.",
+      "Відомостей про фактичне виконання (постачання, надання послуг, роботи) не знайдено в перевірених джерелах."
+    ],
+    "needsCheck": [],
+    "verifiedAt": "2026-10-30",
+    "verifiedBy": null
+  },
+  {
+    "id": "UA-2025-10-16-008510-a",
+    "apiId": "1b4aceb929d2486986d40867bd9bae73",
+    "planId": "UA-P-2025-10-16-010245-a",
+    "title": "Природний газ; 09120000-6 - Газове паливо",
+    "kind": "Товари",
+    "cpvCode": "09120000-6",
+    "cpvName": "Газове паливо",
+    "procurementType": "Відкриті торги з особливостями",
+    "buyer": "ПОЛТАВСЬКА РАЙОННА РАДА",
+    "buyerEdrpou": "21049708",
+    "buyerAddress": "38714, Україна, Полтавська область, с. Супрунівка, вул. Соборна, буд. 3",
+    "contractor": null,
+    "contractorEdrpou": null,
+    "expectedAmount": 852630.0,
+    "contractAmount": null,
+    "currency": "UAH",
+    "expectedVatIncluded": true,
+    "contractVatIncluded": null,
+    "status": "not_held",
+    "statusLabel": "Торги не відбулися",
+    "sourceStatus": "Торги не відбулися",
+    "executionStatus": "not_applicable",
+    "address": null,
+    "placeType": "unknown",
+    "latitude": null,
+    "longitude": null,
+    "hasCoordinates": false,
+    "coordinatesStatus": null,
+    "periodStart": null,
+    "periodEnd": null,
+    "funding": [
+      {
+        "source": "Місцевий бюджет",
+        "expenditureCode": "ТПКВКМБ 0150 – Організаційне, інформаційно-аналітичне та матеріально-технічне забезпечення діяльності обласної ради, районної ради, районної у місті ради (у разі її створення), міської, селищної, сільської рад",
+        "territory": "Україна, місто Полтава",
+        "amount": 852630.0
+      }
+    ],
+    "nonCompetitiveBasis": null,
+    "bidsListComplete": false,
+    "bids": [],
+    "events": [
+      {
+        "date": "2025-10-16",
+        "stage": "announced",
+        "title": "Оголошення відкритих торгів з особливостями",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-10-16-008510-a"
+      },
+      {
+        "date": "2025-10-16",
+        "stage": "protocol_published",
+        "title": "Електронний протокол рішення про проведення закупівлі",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-10-16-008510-a"
+      },
+      {
+        "date": "2025-10-21",
+        "stage": "clarification_deadline",
+        "title": "Кінцевий строк звернення за роз'ясненнями та оскарження умов закупівлі",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-10-16-008510-a"
+      },
+      {
+        "date": "2025-10-24",
+        "stage": "bids_deadline",
+        "title": "Кінцевий строк подання тендерних пропозицій",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-10-16-008510-a"
+      },
+      {
+        "date": "2025-10-24",
+        "stage": "cancelled",
+        "title": "Автоматична відміна закупівлі; лот неуспішний",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-10-16-008510-a"
+      }
+    ],
+    "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-10-16-008510-a",
+    "notes": [
+      {
+        "text": "Закупівлю відмінено автоматично 24.10.2025; лот позначено як неуспішний.",
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-10-16-008510-a"
+      }
+    ],
+    "missingData": [
+      "Сторінка не показує, чи подавалися пропозиції."
+    ],
+    "needsCheck": [],
+    "verifiedAt": "2026-10-30",
+    "verifiedBy": null
+  },
+  {
+    "id": "UA-2024-12-29-001344-a",
+    "apiId": "65d0654d20c24ed5b97cffed1de5db29",
+    "planId": "UA-P-2024-12-29-001628-a",
+    "title": "Розподіл газу (розподіл природного газу)",
+    "kind": "Послуги",
+    "cpvCode": "65210000-8",
+    "cpvName": "Розподіл газу",
+    "procurementType": "Закупівля без використання електронної системи",
+    "buyer": "ПОЛТАВСЬКА РАЙОННА РАДА",
+    "buyerEdrpou": "21049708",
+    "buyerAddress": "38714, Україна, Полтавська область, с. Супрунівка, вул. Соборна, буд. 3",
+    "contractor": "АКЦІОНЕРНЕ ТОВАРИСТВО \"ОПЕРАТОР ГАЗОРОЗПОДІЛЬНОЇ СИСТЕМИ \"ПОЛТАВАГАЗ\"\"",
+    "contractorEdrpou": "03351912",
+    "expectedAmount": 97331.64,
+    "contractAmount": 97331.64,
+    "currency": "UAH",
+    "expectedVatIncluded": true,
+    "contractVatIncluded": true,
+    "status": "contract_signed",
+    "statusLabel": "Договір укладено",
+    "sourceStatus": "Завершена",
+    "executionStatus": "not_confirmed",
+    "address": "м. Полтава, вул. Шевченка, 5",
+    "placeType": "delivery",
+    "latitude": 49.5852,
+    "longitude": 34.551,
+    "hasCoordinates": true,
+    "coordinatesStatus": "needs_check",
+    "periodStart": "2024-01-01",
+    "periodEnd": "2024-12-31",
+    "funding": [
+      {
+        "source": "Місцевий бюджет",
+        "expenditureCode": null,
+        "territory": null,
+        "amount": 97331.64
+      }
+    ],
+    "nonCompetitiveBasis": null,
+    "bidsListComplete": false,
+    "bids": [
+      {
+        "bidder": "АКЦІОНЕРНЕ ТОВАРИСТВО \"ОПЕРАТОР ГАЗОРОЗПОДІЛЬНОЇ СИСТЕМИ \"ПОЛТАВАГАЗ\"\"",
+        "bidderEdrpou": "03351912",
+        "amount": 97331.64,
+        "vatIncluded": true,
+        "outcome": "winner"
+      }
+    ],
+    "events": [
+      {
+        "date": "2024-12-29",
+        "stage": "protocol_published",
+        "title": "Електронний протокол рішення про проведення закупівлі",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-29-001344-a"
+      },
+      {
+        "date": "2024-12-29",
+        "stage": "reported",
+        "title": "Опубліковано протокол розкриття пропозицій; переможець — АТ «ОПЕРАТОР ГАЗОРОЗПОДІЛЬНОЇ СИСТЕМИ «ПОЛТАВАГАЗ», 97 331,64 UAH з ПДВ",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-29-001344-a"
+      },
+      {
+        "date": null,
+        "stage": "contract_signed",
+        "title": "Укладено договір UA-2024-12-29-001344-a-c1 на суму 97 331,64 UAH з ПДВ",
+        "dateNote": "Дату підписання на сторінці закупівлі не вказано; вона є на сторінці договору",
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-29-001344-a"
+      }
+    ],
+    "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-29-001344-a",
+    "notes": [
+      {
+        "text": "Період поставки за сторінкою закупівлі: 01.01.2024–31.12.2024; протокол опубліковано 29.12.2024.",
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-29-001344-a"
+      }
+    ],
+    "missingData": [
+      "Обґрунтування вибору неконкурентної процедури на сторінці закупівлі не наведено.",
+      "Відомостей про фактичне виконання (постачання, надання послуг, роботи) не знайдено в перевірених джерелах."
+    ],
+    "needsCheck": [],
+    "verifiedAt": "2026-10-30",
+    "verifiedBy": null
+  },
+  {
+    "id": "UA-2024-12-26-011685-a",
+    "apiId": "13929d466f4348298b66e047416a113d",
+    "planId": "UA-P-2024-12-26-011069-a",
+    "title": "Електрична енергія, з розподілом",
+    "kind": "Товари",
+    "cpvCode": "09310000-5",
+    "cpvName": "Електрична енергія",
+    "procurementType": "Запит (ціни) пропозицій",
+    "buyer": "ПОЛТАВСЬКА РАЙОННА РАДА",
+    "buyerEdrpou": "21049708",
+    "buyerAddress": "38714, Україна, Полтавська область, с. Супрунівка, вул. Соборна, буд. 3",
+    "contractor": "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ \"ПОЛТАВАЕНЕРГОЗБУТ\"",
+    "contractorEdrpou": "42223804",
+    "expectedAmount": 865800.0,
+    "contractAmount": 860575.17,
+    "currency": "UAH",
+    "expectedVatIncluded": true,
+    "contractVatIncluded": true,
+    "status": "contract_signed",
+    "statusLabel": "Договір укладено",
+    "sourceStatus": "Завершена",
+    "executionStatus": "not_confirmed",
+    "address": "м. Полтава, вул. Шевченка, 5",
+    "placeType": "delivery",
+    "latitude": 49.5852,
+    "longitude": 34.551,
+    "hasCoordinates": true,
+    "coordinatesStatus": "needs_check",
+    "periodStart": "2025-01-01",
+    "periodEnd": "2025-12-31",
+    "funding": [
+      {
+        "source": "Місцевий бюджет",
+        "expenditureCode": null,
+        "territory": null,
+        "amount": 865800.0
+      }
+    ],
+    "nonCompetitiveBasis": null,
+    "bidsListComplete": true,
+    "bids": [
+      {
+        "bidder": "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ МИКОЛАЇВСЬКА ЕЛЕКТРОПОСТАЧАЛЬНА КОМПАНІЯ",
+        "bidderEdrpou": "42129888",
+        "amount": 848611.3,
+        "vatIncluded": true,
+        "outcome": "rejected"
+      },
+      {
+        "bidder": "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ \"ПОЛТАВАЕНЕРГОЗБУТ\"",
+        "bidderEdrpou": "42223804",
+        "amount": 860575.17,
+        "vatIncluded": true,
+        "outcome": "winner"
+      },
+      {
+        "bidder": "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ \"ПЕРШИЙ ЕНЕРГЕТИЧНИЙ ОПЕРАТОР\"",
+        "bidderEdrpou": "41009874",
+        "amount": 860575.32,
+        "vatIncluded": true,
+        "outcome": null
+      },
+      {
+        "bidder": "Товариство з обмеженою відповідальністю \"Запоріжжяелектропостачання\"",
+        "bidderEdrpou": "42093239",
+        "amount": 862680.0,
+        "vatIncluded": true,
+        "outcome": null
+      },
+      {
+        "bidder": "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ \"Глобал енерджі солюшен\"",
+        "bidderEdrpou": "44823241",
+        "amount": 865800.0,
+        "vatIncluded": true,
+        "outcome": null
+      }
+    ],
+    "events": [
+      {
+        "date": "2024-12-26",
+        "stage": "announced",
+        "title": "Оголошення про проведення закупівлі (запит цін пропозицій)",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a"
+      },
+      {
+        "date": "2024-12-26",
+        "stage": "protocol_published",
+        "title": "Електронний протокол рішення про проведення закупівлі",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a"
+      },
+      {
+        "date": "2024-12-31",
+        "stage": "bids_opened",
+        "title": "Розкриття пропозицій: 5 учасників",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a"
+      },
+      {
+        "date": "2025-01-06",
+        "stage": "reported",
+        "title": "Опубліковано протокол розкриття пропозицій",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a"
+      },
+      {
+        "date": "2025-01-06",
+        "stage": "bid_rejected",
+        "title": "Пропозицію ТОВ «МИКОЛАЇВСЬКА ЕЛЕКТРОПОСТАЧАЛЬНА КОМПАНІЯ» на суму 848 611,30 UAH з ПДВ відхилено",
+        "dateNote": "Дата публікації протоколу; дату повідомлення на сторінці закупівлі не вказано",
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a"
+      },
+      {
+        "date": "2025-01-06",
+        "stage": "award_notice",
+        "title": "Повідомлення про намір укласти договір з ТОВ «ПОЛТАВАЕНЕРГОЗБУТ»",
+        "dateNote": "Дата публікації протоколу; дату повідомлення на сторінці закупівлі не вказано",
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a"
+      },
+      {
+        "date": null,
+        "stage": "contract_signed",
+        "title": "Укладено договір UA-2024-12-26-011685-a-c1 на суму 860 575,17 UAH з ПДВ",
+        "dateNote": "Дату підписання на сторінці закупівлі не вказано; вона є на сторінці договору",
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a"
+      }
+    ],
+    "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a",
+    "notes": [
+      {
+        "text": "Розкрито 5 пропозицій. Пропозицію ТОВ «МИКОЛАЇВСЬКА ЕЛЕКТРОПОСТАЧАЛЬНА КОМПАНІЯ» на суму 848 611,30 UAH з ПДВ відхилено.",
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a"
+      }
+    ],
+    "missingData": [
+      "Причину відхилення пропозиції на сторінці закупівлі не показано: повідомлення про відхилення є окремим PDF-документом.",
+      "Відомостей про фактичне виконання (постачання, надання послуг, роботи) не знайдено в перевірених джерелах."
+    ],
+    "needsCheck": [],
+    "verifiedAt": "2026-10-30",
+    "verifiedBy": null
+  },
+  {
+    "id": "UA-2024-09-19-012948-a",
+    "apiId": "ca587703e2354eec81387ba351eee1c6",
+    "planId": "UA-P-2024-09-19-015971-a",
+    "title": "Природний газ; 09120000-6 - Газове паливо",
+    "kind": "Товари",
+    "cpvCode": "09120000-6",
+    "cpvName": "Газове паливо",
+    "procurementType": "Відкриті торги з особливостями",
+    "buyer": "ПОЛТАВСЬКА РАЙОННА РАДА",
+    "buyerEdrpou": "21049708",
+    "buyerAddress": "38714, Україна, Полтавська область, с. Супрунівка, вул. Соборна, буд. 3",
+    "contractor": null,
+    "contractorEdrpou": null,
+    "expectedAmount": 993233.4,
+    "contractAmount": null,
+    "currency": "UAH",
+    "expectedVatIncluded": true,
+    "contractVatIncluded": null,
+    "status": "not_held",
+    "statusLabel": "Торги не відбулися",
+    "sourceStatus": "Торги не відбулися",
+    "executionStatus": "not_applicable",
+    "address": null,
+    "placeType": "unknown",
+    "latitude": null,
+    "longitude": null,
+    "hasCoordinates": false,
+    "coordinatesStatus": null,
+    "periodStart": null,
+    "periodEnd": null,
+    "funding": [
+      {
+        "source": "Місцевий бюджет",
+        "expenditureCode": null,
+        "territory": null,
+        "amount": 993233.4
+      }
+    ],
+    "nonCompetitiveBasis": null,
+    "bidsListComplete": false,
+    "bids": [],
+    "events": [
+      {
+        "date": "2024-09-19",
+        "stage": "announced",
+        "title": "Оголошення відкритих торгів з особливостями",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-09-19-012948-a"
+      },
+      {
+        "date": "2024-09-19",
+        "stage": "protocol_published",
+        "title": "Електронний протокол рішення про проведення закупівлі",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-09-19-012948-a"
+      },
+      {
+        "date": "2024-09-24",
+        "stage": "clarification_deadline",
+        "title": "Кінцевий строк звернення за роз'ясненнями та оскарження умов закупівлі",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-09-19-012948-a"
+      },
+      {
+        "date": "2024-09-27",
+        "stage": "bids_deadline",
+        "title": "Кінцевий строк подання тендерних пропозицій",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-09-19-012948-a"
+      },
+      {
+        "date": "2024-09-27",
+        "stage": "cancelled",
+        "title": "Автоматична відміна закупівлі; лот неуспішний",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-09-19-012948-a"
+      }
+    ],
+    "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-09-19-012948-a",
+    "notes": [
+      {
+        "text": "Закупівлю відмінено автоматично 27.09.2024; лот позначено як неуспішний.",
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-09-19-012948-a"
+      }
+    ],
+    "missingData": [
+      "Сторінка не показує, чи подавалися пропозиції."
+    ],
+    "needsCheck": [],
+    "verifiedAt": "2026-10-30",
+    "verifiedBy": null
+  },
+  {
+    "id": "UA-2023-12-29-000893-a",
+    "apiId": "5f18d64cc5c8403c9935835f215bd4ab",
+    "planId": "UA-P-2023-12-29-000435-b",
+    "title": "Поточний аварійний ремонт покрівлі адміністративного будинку по вул.Шевченка,5 м.Полтава",
+    "kind": "Послуги",
+    "cpvCode": "45000000-7",
+    "cpvName": "Будівельні роботи та поточний ремонт",
+    "procurementType": "Закупівля без використання електронної системи",
+    "buyer": "ПОЛТАВСЬКА РАЙОННА РАДА",
+    "buyerEdrpou": "21049708",
+    "buyerAddress": "38714, Україна, Полтавська область, с. Супрунівка, вул. Соборна, буд. 3",
+    "contractor": "ПРИВАТНЕ ПІДПРИЄМСТВО \"БЕСТБУДСЕРВІС\"",
+    "contractorEdrpou": "43576260",
+    "expectedAmount": 17482.0,
+    "contractAmount": 17482.0,
+    "currency": "UAH",
+    "expectedVatIncluded": false,
+    "contractVatIncluded": null,
+    "status": "contract_signed",
+    "statusLabel": "Договір укладено",
+    "sourceStatus": "Завершена",
+    "executionStatus": "not_confirmed",
+    "address": "м. Полтава, вул. Шевченка, 5",
+    "placeType": "work",
+    "latitude": 49.5852,
+    "longitude": 34.551,
+    "hasCoordinates": true,
+    "coordinatesStatus": "needs_check",
+    "periodStart": "2023-12-07",
+    "periodEnd": "2023-12-31",
+    "funding": [
+      {
+        "source": "Місцевий бюджет",
+        "expenditureCode": null,
+        "territory": null,
+        "amount": 17482.0
+      }
+    ],
+    "nonCompetitiveBasis": null,
+    "bidsListComplete": false,
+    "bids": [
+      {
+        "bidder": "ПРИВАТНЕ ПІДПРИЄМСТВО \"БЕСТБУДСЕРВІС\"",
+        "bidderEdrpou": "43576260",
+        "amount": 17482.0,
+        "vatIncluded": false,
+        "outcome": "winner"
+      }
+    ],
+    "events": [
+      {
+        "date": "2023-12-29",
+        "stage": "protocol_published",
+        "title": "Електронний протокол рішення про проведення закупівлі",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2023-12-29-000893-a"
+      },
+      {
+        "date": "2023-12-29",
+        "stage": "reported",
+        "title": "Опубліковано протокол розкриття пропозицій; переможець — ПП «БЕСТБУДСЕРВІС», 17 482,00 UAH без ПДВ",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2023-12-29-000893-a"
+      },
+      {
+        "date": null,
+        "stage": "contract_signed",
+        "title": "Укладено договір UA-2023-12-29-000893-a-a1 на суму 17 482,00 UAH",
+        "dateNote": "Дату підписання на сторінці закупівлі не вказано; вона є на сторінці договору",
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2023-12-29-000893-a"
+      }
+    ],
+    "sourceUrl": "https://prozorro.gov.ua/tender/UA-2023-12-29-000893-a",
+    "notes": [
+      {
+        "text": "Період виконання за сторінкою закупівлі: 07.12.2023–31.12.2023; протокол опубліковано 29.12.2023.",
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2023-12-29-000893-a"
+      }
+    ],
+    "missingData": [
+      "Обґрунтування вибору неконкурентної процедури на сторінці закупівлі не наведено.",
+      "Відомостей про фактичне виконання (постачання, надання послуг, роботи) не знайдено в перевірених джерелах."
+    ],
+    "needsCheck": [
+      "На сторінці закупівлі для суми договору не вказано, з ПДВ вона чи без (очікувана вартість і остаточна пропозиція — без ПДВ)."
+    ],
+    "verifiedAt": "2026-10-30",
+    "verifiedBy": null
+  },
+  {
+    "id": "UA-2026-10-31-000055-a",
+    "apiId": "a1a30cdb83e244878bc3fad2e1f3179c",
+    "planId": "UA-P-2026-10-31-000052-a",
+    "title": "Надання інформаційних послуг щодо експлуатації програмного комплексу \"ІС-ПРО\" (72260000-5)",
+    "kind": "Послуги",
+    "cpvCode": "72260000-5",
+    "cpvName": "Послуги, пов’язані з програмним забезпеченням",
+    "procurementType": "Закупівля без використання електронної системи",
+    "buyer": "Комунальний заклад \"Інклюзивно-ресурсний центр Полтавської міської ради\"",
+    "buyerEdrpou": "42277729",
+    "buyerAddress": "36014, Україна, Полтавська область, місто Полтава, вулиця Івана Нечуя-Левицького, будинок 4",
+    "contractor": "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ \"ОБЛІКСОФТ 2020\"",
+    "contractorEdrpou": "43487490",
+    "expectedAmount": 5750.0,
+    "contractAmount": 5750.0,
+    "currency": "UAH",
+    "expectedVatIncluded": false,
+    "contractVatIncluded": null,
+    "status": "contract_signed",
+    "statusLabel": "Договір укладено",
+    "sourceStatus": "Завершена",
+    "executionStatus": "not_confirmed",
+    "address": "м. Полтава, вул. Івана Нечуя-Левицького, 4",
+    "placeType": "delivery",
+    "latitude": null,
+    "longitude": null,
+    "hasCoordinates": false,
+    "coordinatesStatus": null,
+    "periodStart": "2026-10-30",
+    "periodEnd": "2026-12-31",
+    "funding": [
+      {
+        "source": "Місцевий бюджет",
+        "expenditureCode": "ТПКВКМБ 1151 – Забезпечення діяльності інклюзивно-ресурсних центрів за рахунок коштів місцевого бюджету",
+        "territory": "Україна, район у місті Київський",
+        "amount": 6900.0
+      }
+    ],
+    "nonCompetitiveBasis": null,
+    "bidsListComplete": false,
+    "bids": [
+      {
+        "bidder": "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ \"ОБЛІКСОФТ 2020\"",
+        "bidderEdrpou": "43487490",
+        "amount": 5750.0,
+        "vatIncluded": false,
+        "outcome": "winner"
+      }
+    ],
+    "events": [
+      {
+        "date": "2026-10-31",
+        "stage": "protocol_published",
+        "title": "Електронний протокол рішення про проведення закупівлі",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2026-10-31-000055-a"
+      },
+      {
+        "date": "2026-10-31",
+        "stage": "reported",
+        "title": "Опубліковано протокол розкриття пропозицій; переможець — ТОВ «ОБЛІКСОФТ 2020», 5 750,00 UAH без ПДВ",
+        "dateNote": null,
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2026-10-31-000055-a"
+      },
+      {
+        "date": null,
+        "stage": "contract_signed",
+        "title": "Укладено договір UA-2026-10-31-000055-a-a1 на суму 5 750,00 UAH",
+        "dateNote": "Дату підписання на сторінці закупівлі не вказано; вона є на сторінці договору",
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2026-10-31-000055-a"
+      }
+    ],
+    "sourceUrl": "https://prozorro.gov.ua/tender/UA-2026-10-31-000055-a",
+    "notes": [],
+    "missingData": [
+      "Обґрунтування вибору неконкурентної процедури на сторінці закупівлі не наведено.",
+      "Відомостей про фактичне виконання (постачання, надання послуг, роботи) не знайдено в перевірених джерелах."
+    ],
+    "needsCheck": [
+      "На сторінці закупівлі для суми договору не вказано, з ПДВ вона чи без (очікувана вартість — без ПДВ)."
+    ],
+    "verifiedAt": "2026-10-31",
+    "verifiedBy": null
+  }
+]
