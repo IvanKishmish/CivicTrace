@@ -7,38 +7,50 @@
     "buyerEdrpou": "21049708",
     "contractor": "АТ «ОПЕРАТОР ГАЗОРОЗПОДІЛЬНОЇ СИСТЕМИ «ПОЛТАВАГАЗ»",
     "contractorEdrpou": "03351912",
-    "expectedAmount": 157431.30,
-    "contractAmount": 157431.30,
+    "expectedAmount": 157431.3,
+    "contractAmount": 157431.3,
     "currency": "UAH",
     "status": "Завершена",
     "procurementType": "Закупівля без використання електронної системи",
-    "address": "м. Полтава, вул. Шевченка, 5Г",
-    "latitude": 49.5852,
-    "longitude": 34.5510,
-    "hasCoordinates": true,
+    "address": null,
+    "latitude": null,
+    "longitude": null,
+    "hasCoordinates": false,
     "startDate": "2026-01-01",
     "endDate": "2026-12-31",
     "events": [
       {
         "date": "2026-01-15",
         "title": "Електронний протокол рішення про проведення закупівлі",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2026-01-15-013808-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2026-01-15-013808-a",
+        "stage": "protocol_published"
       },
       {
         "date": "2026-01-15",
         "title": "Опубліковано звіт про договір та протокол розкриття",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2026-01-15-013808-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2026-01-15-013808-a",
+        "stage": "reported"
       },
       {
         "date": "2026-01-15",
         "title": "Укладено договір UA-2026-01-15-013808-a-c1",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2026-01-15-013808-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2026-01-15-013808-a",
+        "stage": "contract_signed"
       }
     ],
     "sourceUrl": "https://prozorro.gov.ua/tender/UA-2026-01-15-013808-a",
-    "missingDataNotice": "Закупівля здійснена без електронного аукціону (постачальник останньої надії / монополіст згідно Постанови КМУ №1178)."
+    "missingDataNotice": "Закупівлю проведено без використання електронної системи. Підставу та документи дивіться на сторінці першоджерела.",
+    "kindCode": "services",
+    "cpvCode": "65210000-8",
+    "cpvName": "Розподіл газу",
+    "methodCode": "no_electronic_system",
+    "statusCode": "contract_signed",
+    "placeType": "unknown",
+    "coordinatesStatus": null,
+    "expectedVatIncluded": null,
+    "contractVatIncluded": null,
+    "sourceAddress": "м. Полтава, вул. Шевченка, 5Г"
   },
-
   {
     "id": "UA-2025-12-05-009237-a",
     "title": "Електрична енергія, з розподілом",
@@ -47,83 +59,108 @@
     "buyerEdrpou": "21049708",
     "contractor": "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ «ПОЛТАВАЕНЕРГОЗБУТ»",
     "contractorEdrpou": "42223804",
-    "expectedAmount": 928800.00,
+    "expectedAmount": 928800.0,
     "contractAmount": 920106.36,
     "currency": "UAH",
     "status": "Завершена",
     "procurementType": "Запит (ціни) пропозицій",
-    "address": "м. Полтава, вул. Шевченка, 5Г",
-    "latitude": 49.5852,
-    "longitude": 34.5510,
-    "hasCoordinates": true,
+    "address": null,
+    "latitude": null,
+    "longitude": null,
+    "hasCoordinates": false,
     "startDate": "2026-01-01",
     "endDate": "2026-12-31",
     "events": [
       {
         "date": "2025-12-05",
         "title": "Оголошення закупівлі та оприлюднення проекту договору",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a",
+        "stage": "announced"
       },
       {
         "date": "2025-12-10",
         "title": "Розкриття 8 пропозицій. Найдешевшу пропозицію (663 381.79 UAH) відхилено",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a",
+        "stage": "bids_opened"
       },
       {
         "date": "2025-12-10",
         "title": "Повідомлення про намір укласти договір з ТОВ «ПОЛТАВАЕНЕРГОЗБУТ»",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a",
+        "stage": "award_notice"
       },
       {
         "date": "2025-12-10",
         "title": "Укладено договір UA-2025-12-05-009237-a-a1 на суму 920 106.36 UAH",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a",
+        "stage": "contract_signed"
       }
     ],
     "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-12-05-009237-a",
-    "missingDataNotice": "Зверніть увагу: найдешевшу пропозицію учасника ТОВ «ГАЗЕНЕРГО-ТРЕЙД» (663 381.79 грн) було відхилено. Переможцем обрано пропозицію, вищу на 256 724.57 грн."
+    "missingDataNotice": "У джерелі зазначено 8 пропозицій і відхилення найдешевшої. Причину відхилення з цього набору даних не встановлено; перевірте документи першоджерела.",
+    "kindCode": "goods",
+    "cpvCode": "09310000-5",
+    "cpvName": "Електрична енергія",
+    "methodCode": "request_for_quotations",
+    "statusCode": "contract_signed",
+    "placeType": "unknown",
+    "coordinatesStatus": null,
+    "expectedVatIncluded": null,
+    "contractVatIncluded": null,
+    "sourceAddress": "м. Полтава, вул. Шевченка, 5Г"
   },
-
   {
     "id": "UA-2025-10-16-008510-a",
     "title": "Природний газ",
     "category": "Товари (ДК 021:2015: 09120000-6 — Газове паливо)",
     "buyer": "ПОЛТАВСЬКА РАЙОННА РАДА",
     "buyerEdrpou": "21049708",
-    "contractor": "Не визначено (торги не відбулися)",
+    "contractor": null,
     "contractorEdrpou": null,
-    "expectedAmount": 852630.00,
+    "expectedAmount": 852630.0,
     "contractAmount": null,
     "currency": "UAH",
     "status": "Торги не відбулися",
     "procurementType": "Відкриті торги з особливостями",
-    "address": "м. Полтава",
-    "latitude": 49.5852,
-    "longitude": 34.5510,
-    "hasCoordinates": true,
+    "address": null,
+    "latitude": null,
+    "longitude": null,
+    "hasCoordinates": false,
     "startDate": "2025-10-16",
     "endDate": "2025-10-24",
     "events": [
       {
         "date": "2025-10-16",
         "title": "Оголошення відкритих торгів з особливостями та оприлюднення документації",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-10-16-008510-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-10-16-008510-a",
+        "stage": "announced"
       },
       {
         "date": "2025-10-21",
         "title": "Кінцевий строк звернення за роз'ясненнями та оскарження умов закупівлі",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-10-16-008510-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-10-16-008510-a",
+        "stage": "clarification_deadline"
       },
       {
         "date": "2025-10-24",
         "title": "Автоматична відміна закупівлі через відсутність поданих пропозицій",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-10-16-008510-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-10-16-008510-a",
+        "stage": "cancelled"
       }
     ],
     "sourceUrl": "https://prozorro.gov.ua/tender/UA-2025-10-16-008510-a",
-    "missingDataNotice": "Процедуру торгів відмінено 24.10.2025: жоден постачальник не подав тендерну пропозицію."
+    "missingDataNotice": "У джерелі зазначено автоматичне скасування закупівлі через відсутність поданих пропозицій.",
+    "kindCode": "goods",
+    "cpvCode": "09120000-6",
+    "cpvName": "Газове паливо",
+    "methodCode": "open_tenders_with_specifics",
+    "statusCode": "not_held",
+    "placeType": "unknown",
+    "coordinatesStatus": null,
+    "expectedVatIncluded": null,
+    "contractVatIncluded": null,
+    "sourceAddress": "м. Полтава"
   },
-
   {
     "id": "UA-2024-12-29-001344-a",
     "title": "Розподіл газу (розподіл природного газу)",
@@ -137,33 +174,45 @@
     "currency": "UAH",
     "status": "Завершена",
     "procurementType": "Закупівля без використання електронної системи",
-    "address": "м. Полтава, вул. Шевченка, 5",
-    "latitude": 49.5852,
-    "longitude": 34.5510,
-    "hasCoordinates": true,
+    "address": null,
+    "latitude": null,
+    "longitude": null,
+    "hasCoordinates": false,
     "startDate": "2024-01-01",
     "endDate": "2024-12-31",
     "events": [
       {
         "date": "2024-12-29",
         "title": "Електронний протокол рішення про проведення закупівлі",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-29-001344-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-29-001344-a",
+        "stage": "protocol_published"
       },
       {
         "date": "2024-12-29",
         "title": "Опубліковано звіт про договір про закупівлю та протокол розкриття",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-29-001344-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-29-001344-a",
+        "stage": "reported"
       },
       {
         "date": "2024-12-29",
         "title": "Укладено договір UA-2024-12-29-001344-a-c1",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-29-001344-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-29-001344-a",
+        "stage": "contract_signed"
       }
     ],
     "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-29-001344-a",
-    "missingDataNotice": "Пряма закупівля без використання електронного аукціону (договір на розподіл газу за 2024 рік із місцевим монополістом)."
+    "missingDataNotice": "У Prozorro вказано закупівлю без використання електронної системи. Деталі та документи дивіться на сторінці першоджерела.",
+    "kindCode": "services",
+    "cpvCode": "65210000-8",
+    "cpvName": "Розподіл газу",
+    "methodCode": "no_electronic_system",
+    "statusCode": "contract_signed",
+    "placeType": "unknown",
+    "coordinatesStatus": null,
+    "expectedVatIncluded": null,
+    "contractVatIncluded": null,
+    "sourceAddress": "м. Полтава, вул. Шевченка, 5"
   },
-
   {
     "id": "UA-2024-12-26-011685-a",
     "title": "Електрична енергія, з розподілом",
@@ -172,83 +221,108 @@
     "buyerEdrpou": "21049708",
     "contractor": "ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ «ПОЛТАВАЕНЕРГОЗБУТ»",
     "contractorEdrpou": "42223804",
-    "expectedAmount": 865800.00,
+    "expectedAmount": 865800.0,
     "contractAmount": 860575.17,
     "currency": "UAH",
     "status": "Завершена",
     "procurementType": "Запит (ціни) пропозицій",
-    "address": "м. Полтава, вул. Шевченка, 5Г",
-    "latitude": 49.5852,
-    "longitude": 34.5510,
-    "hasCoordinates": true,
+    "address": null,
+    "latitude": null,
+    "longitude": null,
+    "hasCoordinates": false,
     "startDate": "2025-01-01",
     "endDate": "2025-12-31",
     "events": [
       {
         "date": "2024-12-26",
         "title": "Оголошення закупівлі та оприлюднення проекту договору",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a",
+        "stage": "announced"
       },
       {
         "date": "2024-12-31",
         "title": "Розкриття 5 пропозицій учасників",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a",
+        "stage": "bids_opened"
       },
       {
         "date": "2025-01-06",
         "title": "Найдешевшу пропозицію (848 611.30 UAH) відхилено. Опубліковано намір укласти договір з ТОВ «ПОЛТАВАЕНЕРГОЗБУТ»",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a",
+        "stage": "award_notice"
       },
       {
         "date": "2025-01-06",
         "title": "Укладено договір UA-2024-12-26-011685-a-c1 на суму 860 575.17 UAH",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a",
+        "stage": "contract_signed"
       }
     ],
     "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-12-26-011685-a",
-    "missingDataNotice": "Найдешевшу пропозицію учасника ТОВ «МИКОЛАЇВСЬКА ЕЛЕКТРОПОСТАЧАЛЬНА КОМПАНІЯ» (848 611.30 грн) було відхилено. Переможцем обрано пропозицію, вищу на 11 963.87 грн."
+    "missingDataNotice": "У джерелі зазначено 5 пропозицій і відхилення найдешевшої. Причину відхилення з цього набору даних не встановлено; перевірте документи першоджерела.",
+    "kindCode": "goods",
+    "cpvCode": "09310000-5",
+    "cpvName": "Електрична енергія",
+    "methodCode": "request_for_quotations",
+    "statusCode": "contract_signed",
+    "placeType": "unknown",
+    "coordinatesStatus": null,
+    "expectedVatIncluded": null,
+    "contractVatIncluded": null,
+    "sourceAddress": "м. Полтава, вул. Шевченка, 5Г"
   },
-
   {
     "id": "UA-2024-09-19-012948-a",
     "title": "Природний газ",
     "category": "Товари (ДК 021:2015: 09120000-6 — Газове паливо)",
     "buyer": "ПОЛТАВСЬКА РАЙОННА РАДА",
     "buyerEdrpou": "21049708",
-    "contractor": "Не визначено (торги не відбулися)",
+    "contractor": null,
     "contractorEdrpou": null,
-    "expectedAmount": 993233.40,
+    "expectedAmount": 993233.4,
     "contractAmount": null,
     "currency": "UAH",
     "status": "Торги не відбулися",
     "procurementType": "Відкриті торги з особливостями",
-    "address": "м. Полтава",
-    "latitude": 49.5852,
-    "longitude": 34.5510,
-    "hasCoordinates": true,
+    "address": null,
+    "latitude": null,
+    "longitude": null,
+    "hasCoordinates": false,
     "startDate": "2024-09-19",
     "endDate": "2024-09-27",
     "events": [
       {
         "date": "2024-09-19",
         "title": "Оголошення відкритих торгів з особливостями та оприлюднення документації",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-09-19-012948-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-09-19-012948-a",
+        "stage": "announced"
       },
       {
         "date": "2024-09-24",
         "title": "Кінцевий строк звернення за роз'ясненнями та оскарження умов закупівлі",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-09-19-012948-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-09-19-012948-a",
+        "stage": "clarification_deadline"
       },
       {
         "date": "2024-09-27",
         "title": "Автоматична відміна закупівлі через відсутність поданих пропозицій",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-09-19-012948-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-09-19-012948-a",
+        "stage": "cancelled"
       }
     ],
     "sourceUrl": "https://prozorro.gov.ua/tender/UA-2024-09-19-012948-a",
-    "missingDataNotice": "Процедуру торгів відмінено 27.09.2024: жоден постачальник не подав тендерну пропозицію."
+    "missingDataNotice": "У джерелі зазначено автоматичне скасування закупівлі через відсутність поданих пропозицій.",
+    "kindCode": "goods",
+    "cpvCode": "09120000-6",
+    "cpvName": "Газове паливо",
+    "methodCode": "open_tenders_with_specifics",
+    "statusCode": "not_held",
+    "placeType": "unknown",
+    "coordinatesStatus": null,
+    "expectedVatIncluded": null,
+    "contractVatIncluded": null,
+    "sourceAddress": "м. Полтава"
   },
-
   {
     "id": "UA-2023-12-29-000893-a",
     "title": "Поточний аварійний ремонт покрівлі адміністративного будинку по вул. Шевченка, 5 м. Полтава",
@@ -257,35 +331,48 @@
     "buyerEdrpou": "21049708",
     "contractor": "ПРИВАТНЕ ПІДПРИЄМСТВО «БЕСТБУДСЕРВІС»",
     "contractorEdrpou": "43576260",
-    "expectedAmount": 17482.00,
-    "contractAmount": 17482.00,
+    "expectedAmount": 17482.0,
+    "contractAmount": 17482.0,
     "currency": "UAH",
     "status": "Завершена",
     "procurementType": "Закупівля без використання електронної системи",
     "address": "м. Полтава, вул. Шевченка, 5",
-    "latitude": 49.5852,
-    "longitude": 34.5510,
-    "hasCoordinates": true,
+    "latitude": null,
+    "longitude": null,
+    "hasCoordinates": false,
     "startDate": "2023-12-07",
     "endDate": "2023-12-31",
     "events": [
       {
         "date": "2023-12-29",
         "title": "Електронний протокол рішення про проведення закупівлі",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2023-12-29-000893-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2023-12-29-000893-a",
+        "stage": "protocol_published"
       },
       {
         "date": "2023-12-29",
         "title": "Опубліковано звіт про договір про закупівлю та протокол розкриття",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2023-12-29-000893-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2023-12-29-000893-a",
+        "stage": "reported"
       },
       {
         "date": "2023-12-29",
         "title": "Укладено договір UA-2023-12-29-000893-a-a1 на суму 17 482.00 UAH (без ПДВ)",
-        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2023-12-29-000893-a"
+        "sourceUrl": "https://prozorro.gov.ua/tender/UA-2023-12-29-000893-a",
+        "stage": "contract_signed"
       }
     ],
     "sourceUrl": "https://prozorro.gov.ua/tender/UA-2023-12-29-000893-a",
-    "missingDataNotice": "Пряма закупівля послуг з аварійного ремонту покрівлі без використання електронного аукціону."
+    "missingDataNotice": "У Prozorro оприлюднено договір на аварійний ремонт покрівлі. Цей запис сам по собі не підтверджує фактичне завершення робіт.",
+    "kindCode": "works",
+    "cpvCode": "45000000-7",
+    "cpvName": "Будівельні роботи та поточний ремонт",
+    "methodCode": "no_electronic_system",
+    "statusCode": "contract_signed",
+    "placeType": "work",
+    "coordinatesStatus": null,
+    "expectedVatIncluded": null,
+    "contractVatIncluded": false,
+    "sourceAddress": "м. Полтава, вул. Шевченка, 5"
   }
 ]
