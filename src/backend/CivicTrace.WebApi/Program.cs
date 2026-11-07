@@ -4,6 +4,7 @@ using CivicTrace.Application.Common.Options;
 using CivicTrace.Persistence;
 using CivicTrace.Persistence.Extensions;
 using CivicTrace.Persistence.Identity;
+using CivicTrace.Persistence.Prozorro;
 using CivicTrace.Persistence.Seeding;
 using CivicTrace.WebApi;
 using DotNetEnv;
@@ -47,6 +48,7 @@ try
     builder.Services.AddInfrastructure(builder.Configuration);
     builder.Services.AddInfrastructureIdentity()
         .AddDefaultTokenProviders();
+    builder.Services.AddProzorroClient(builder.Configuration);
     builder.Services.AddPresentation(builder.Configuration);
 
     builder.Services.AddResponseCompression(options =>
@@ -132,15 +134,16 @@ try
     if (applyMigrations)
         await app.Services.ApplyMigrationsAsync();
 
-    if (app.Environment.IsDevelopment() && app.Configuration.GetValue<bool>("Seed:ImportProcurements"))
+    if (app.Configuration.GetValue<bool>("Seed:ImportProcurements"))
     {
         var importResult = await app.Services.SeedProcurementsAsync(
             app.Configuration,
             app.Environment.ContentRootPath);
         Log.Information(
-            "Procurement seed import finished: {Imported} imported, {Skipped} already present.",
+            "Procurement seed import finished: {Imported} imported, {Skipped} already present, {Replaced} replaced.",
             importResult.Imported,
-            importResult.Skipped);
+            importResult.Skipped,
+            importResult.Replaced);
     }
 
     await app.Services.SeedIdentityAsync();
@@ -149,7 +152,7 @@ try
     app.UseSerilogRequestLogging();
     app.UseResponseCompression();
 
-    if (app.Environment.IsDevelopment())
+    if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("OpenApi:Enabled"))
     {
         app.MapOpenApi();
         app.MapScalarApiReference();
