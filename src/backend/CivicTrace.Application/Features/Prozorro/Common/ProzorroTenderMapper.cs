@@ -18,7 +18,9 @@ public static class ProzorroTenderMapper
     public static ErrorOr<ProzorroImportPlan> Map(
         ProzorroTender tender,
         DateOnly importedOn,
-        IReadOnlyDictionary<string, ProcurementMethod> methodTypeMap)
+        IReadOnlyDictionary<string, ProcurementMethod> methodTypeMap,
+        ProzorroPlan? plan = null,
+        string? planProblem = null)
     {
         var errors = new List<Error>();
         var missing = new List<string>();
@@ -336,15 +338,45 @@ public static class ProzorroTenderMapper
             .Select(x => x.e)
             .ToList();
 
-        // ---- стандартні прогалини
-        missing.Add("Джерело фінансування й ідентифікатор плану закупівлі у відповіді API тендера відсутні (вони є в плані закупівлі).");
+        // ---- план закупівлі: ідентифікатор і джерела фінансування
+        var funding = new List<FundingSourceCreationParams>();
 
+        foreach (var part in plan?.Budget?.Breakdown ?? [])
+        {
+            if (part.Value?.Amount is not { } fundingAmount)
+            {
+                warnings.Add("Складову бюджету плану без суми пропущено.");
+                continue;
+            }
+
+            funding.Add(new FundingSourceCreationParams(
+                FundingSourceLabel(part),
+                FormatClassification(part.Classification),
+                FormatTerritory(part.Address),
+                fundingAmount));
+        }
+
+        if (funding.Count == 0)
+        {
+            if (plan is null)
+                missing.Add(planProblem is null
+                    ? "Тендер не містить посилання на план закупівлі; джерело фінансування невідоме."
+                    : $"Не вдалося прочитати план закупівлі ({planProblem}); джерело фінансування невідоме.");
+            else
+                missing.Add("План закупівлі не містить розбивки бюджету за джерелами фінансування.");
+        }
+
+        if (planProblem is not null)
+            warnings.Add($"План закупівлі не прочитано: {planProblem}");
+
+        // ---- стандартні прогалини
         if (status == ProcurementStatus.ContractSigned)
             missing.Add("Відомостей про фактичне виконання (постачання, надання послуг, роботи) не знайдено в перевірених джерелах.");
 
         return new ProzorroImportPlan(
             ExternalId: externalId!,
             ApiId: tender.Id,
+            PlanExternalId: Clean(plan?.PlanID),
             Title: title!,
             Kind: kind!.Value,
             Cpv: cpv,
@@ -363,7 +395,7 @@ public static class ProzorroTenderMapper
             BidsListComplete: bidsComplete,
             Bids: bids,
             Events: orderedEvents,
-            Funding: [],
+            Funding: funding,
             Notes: [$"Імпортовано з Prozorro API {importedOn:yyyy-MM-dd}."],
             MissingData: missing,
             NeedsCheck: needsCheck,
@@ -403,6 +435,56 @@ public static class ProzorroTenderMapper
         var text = string.Join(", ", parts);
 
         return text.Length == 0 ? null : text;
+    }
+
+    private static string FundingSourceLabel(ProzorroBudgetBreakdown part) => Clean(part.Title) switch
+    {
+        "state" => "Державний бюджет",
+        "crimea" => "Бюджет АР Крим",
+        "local" => "Місцевий бюджет",
+        "own" => "Власні кошти замовника",
+        "fund" => "Кошти фондів",
+        "loan" => "Кредитні та позикові кошти",
+        "other" => Clean(part.Description) ?? "Інше джерело",
+        var other => other ?? "Невідоме джерело"
+    };
+
+    private static string? FormatClassification(ProzorroClassification? classification)
+    {
+        var id = Clean(classification?.Id);
+
+        if (id is null)
+            return null;
+
+        var scheme = Clean(classification?.Scheme);
+        var description = Clean(classification?.Description);
+        var head = scheme is null ? id : $"{scheme} {id}";
+
+        return description is null ? head : $"{head} – {description}";
+    }
+
+    private static string? FormatTerritory(ProzorroAddress? address)
+    {
+        if (address is null)
+            return null;
+
+        var parts = new List<string>();
+
+        if (Clean(address.CountryName) is { } country)
+            parts.Add(country);
+
+        var details = (address.AddressDetails ?? [])
+            .Select(d => Clean(d.Description))
+            .Where(d => d is not null)
+            .Select(d => d!)
+            .ToList();
+
+        if (details.Count > 0)
+            parts.AddRange(details);
+        else if (Clean(address.Locality) is { } locality)
+            parts.Add(locality);
+
+        return parts.Count == 0 ? null : string.Join(", ", parts);
     }
 
     private static ImportedOrganization? ToOrganization(ProzorroOrganization? organization)

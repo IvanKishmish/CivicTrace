@@ -12,17 +12,29 @@ public sealed class ProzorroClient(HttpClient httpClient, ILogger<ProzorroClient
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
-    public async Task<ErrorOr<ProzorroTender>> GetTenderAsync(string apiId, CancellationToken ct = default)
+    public Task<ErrorOr<ProzorroTender>> GetTenderAsync(string apiId, CancellationToken ct = default)
+        => GetDataAsync<ProzorroTenderEnvelope, ProzorroTender>($"tenders/{apiId}", "Tender", apiId, e => e.Data, ct);
+
+    public Task<ErrorOr<ProzorroPlan>> GetPlanAsync(string planApiId, CancellationToken ct = default)
+        => GetDataAsync<ProzorroPlanEnvelope, ProzorroPlan>($"plans/{planApiId}", "Plan", planApiId, e => e.Data, ct);
+
+    private async Task<ErrorOr<TData>> GetDataAsync<TEnvelope, TData>(
+        string path,
+        string kind,
+        string id,
+        Func<TEnvelope, TData?> selector,
+        CancellationToken ct)
+        where TData : class
     {
         HttpResponseMessage response;
 
         try
         {
-            response = await httpClient.GetAsync($"tenders/{apiId}", ct);
+            response = await httpClient.GetAsync(path, ct);
         }
         catch (HttpRequestException ex)
         {
-            logger.LogWarning(ex, "Prozorro API request failed for tender {ApiId}", apiId);
+            logger.LogWarning(ex, "Prozorro API request failed for {Kind} {Id}", kind, id);
             return Error.Failure("Prozorro.Unreachable", "The Prozorro API is unreachable. Try again later.");
         }
         catch (TaskCanceledException) when (!ct.IsCancellationRequested)
@@ -33,7 +45,7 @@ public sealed class ProzorroClient(HttpClient httpClient, ILogger<ProzorroClient
         using (response)
         {
             if (response.StatusCode == HttpStatusCode.NotFound)
-                return Error.NotFound("Prozorro.TenderNotFound", $"Tender '{apiId}' was not found in the Prozorro API.");
+                return Error.NotFound($"Prozorro.{kind}NotFound", $"{kind} '{id}' was not found in the Prozorro API.");
 
             if (response.StatusCode == HttpStatusCode.TooManyRequests)
                 return Error.Failure("Prozorro.RateLimited", "The Prozorro API is rate limiting requests. Try again in a minute.");
@@ -41,29 +53,31 @@ public sealed class ProzorroClient(HttpClient httpClient, ILogger<ProzorroClient
             if (!response.IsSuccessStatusCode)
             {
                 logger.LogWarning(
-                    "Prozorro API returned {StatusCode} for tender {ApiId}", (int)response.StatusCode, apiId);
+                    "Prozorro API returned {StatusCode} for {Kind} {Id}", (int)response.StatusCode, kind, id);
 
                 return Error.Failure(
                     "Prozorro.Unavailable",
                     $"The Prozorro API returned status {(int)response.StatusCode}.");
             }
 
-            ProzorroTenderEnvelope? envelope;
+            TEnvelope? envelope;
 
             try
             {
-                envelope = await response.Content.ReadFromJsonAsync<ProzorroTenderEnvelope>(JsonOptions, ct);
+                envelope = await response.Content.ReadFromJsonAsync<TEnvelope>(JsonOptions, ct);
             }
             catch (JsonException ex)
             {
-                logger.LogWarning(ex, "Could not parse the Prozorro response for tender {ApiId}", apiId);
+                logger.LogWarning(ex, "Could not parse the Prozorro response for {Kind} {Id}", kind, id);
                 return Error.Failure("Prozorro.InvalidResponse", "The Prozorro API response could not be read.");
             }
 
-            if (envelope?.Data is null)
+            var data = envelope is null ? null : selector(envelope);
+
+            if (data is null)
                 return Error.Failure("Prozorro.InvalidResponse", "The Prozorro API response contains no data.");
 
-            return envelope.Data;
+            return data;
         }
     }
 }

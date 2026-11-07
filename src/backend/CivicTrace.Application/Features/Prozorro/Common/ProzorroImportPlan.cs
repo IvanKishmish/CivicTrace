@@ -14,6 +14,7 @@ public sealed record ImportedEvent(DateOnly? Date, EventStage Stage, string Titl
 public sealed record ProzorroImportPlan(
     string ExternalId,
     string ApiId,
+    string? PlanExternalId,
     string Title,
     ProcurementKind Kind,
     CpvClassification Cpv,

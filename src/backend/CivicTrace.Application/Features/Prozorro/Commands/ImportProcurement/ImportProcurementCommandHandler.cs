@@ -2,6 +2,7 @@ using CivicTrace.Application.Common.Interfaces;
 using CivicTrace.Application.Common.Options;
 using CivicTrace.Application.Features.Procurements.Common;
 using CivicTrace.Application.Features.Prozorro.Common;
+using CivicTrace.Application.Features.Prozorro.Models;
 using CivicTrace.Domain.Entities;
 using CivicTrace.Domain.Entities.Models;
 using CivicTrace.Domain.Enums;
@@ -37,10 +38,28 @@ public sealed class ImportProcurementCommandHandler(
         if (tenderResult.IsError)
             return tenderResult.Errors;
 
+        // План закупівлі потрібен для фінансування й planId; невдача не зупиняє імпорт
+        ProzorroPlan? prozorroPlan = null;
+        string? planProblem = null;
+
+        var planReference = tenderResult.Value.Plans?.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.Id));
+
+        if (planReference is not null)
+        {
+            var prozorroPlanResult = await prozorroClient.GetPlanAsync(planReference.Id!.Trim(), ct);
+
+            if (prozorroPlanResult.IsError)
+                planProblem = prozorroPlanResult.FirstError.Description;
+            else
+                prozorroPlan = prozorroPlanResult.Value;
+        }
+
         var planResult = ProzorroTenderMapper.Map(
             tenderResult.Value,
             DateOnly.FromDateTime(DateTime.UtcNow),
-            prozorroOptions.Value.BuildMethodTypeMap());
+            prozorroOptions.Value.BuildMethodTypeMap(),
+            prozorroPlan,
+            planProblem);
 
         if (planResult.IsError)
             return planResult.Errors;
@@ -115,7 +134,7 @@ public sealed class ImportProcurementCommandHandler(
         var procurementResult = Procurement.Create(new ProcurementCreationParams(
             ExternalId: plan.ExternalId,
             ApiId: plan.ApiId,
-            PlanExternalId: null,
+            PlanExternalId: plan.PlanExternalId,
             Title: plan.Title,
             Kind: plan.Kind,
             Cpv: plan.Cpv,
@@ -207,6 +226,9 @@ public sealed class ImportProcurementCommandHandler(
             bid => organizationsById[bid.BidderId]);
 
         var warnings = plan.Warnings.ToList();
+
+        if (tenderResult.Value.Plans?.Count > 1)
+            warnings.Add("Тендер посилається на кілька планів; використано перший.");
 
         if (alreadyExists && command.DryRun)
             warnings.Add("Ця закупівля вже є в базі; під час реального імпорту потрібен replaceExisting = true.");

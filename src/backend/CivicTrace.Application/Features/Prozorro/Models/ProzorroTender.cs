@@ -22,6 +22,7 @@ public sealed class ProzorroTender
     public ProzorroValue? Value { get; init; }
     public ProzorroOrganization? ProcuringEntity { get; init; }
     public List<ProzorroItem>? Items { get; init; }
+    public List<ProzorroPlanRelation>? Plans { get; init; }
     public List<ProzorroAward>? Awards { get; init; }
     public List<ProzorroContract>? Contracts { get; init; }
     public List<ProzorroBid>? Bids { get; init; }
@@ -57,6 +58,7 @@ public sealed class ProzorroAddress
     public string? Region { get; init; }
     public string? PostalCode { get; init; }
     public string? CountryName { get; init; }
+    public List<ProzorroClassification>? AddressDetails { get; init; }
 }
 
 public sealed class ProzorroOrganization
@@ -122,4 +124,47 @@ public sealed class ProzorroCauseDetails
     public string? Scheme { get; init; }
     public string? Title { get; init; }
     public string? Description { get; init; }
+}
+
+// ---------- плани закупівель (GET /plans/{id})
+
+/// <summary>Посилання тендера на план (поле plans тендера).</summary>
+public sealed class ProzorroPlanRelation
+{
+    public string? Id { get; init; }
+}
+
+public sealed class ProzorroPlanEnvelope
+{
+    public ProzorroPlan? Data { get; init; }
+}
+
+public sealed class ProzorroPlan
+{
+    public string Id { get; init; } = string.Empty;
+    public string? PlanID { get; init; }
+    public string? Status { get; init; }
+    public ProzorroBudget? Budget { get; init; }
+}
+
+public sealed class ProzorroBudget
+{
+    public string? Id { get; init; }
+    public string? Description { get; init; }
+    public decimal? Amount { get; init; }
+    public string? Currency { get; init; }
+    public List<ProzorroBudgetBreakdown>? Breakdown { get; init; }
+}
+
+public sealed class ProzorroBudgetBreakdown
+{
+    public string? Id { get; init; }
+
+    /// <summary>state | crimea | local | own | fund | loan | other</summary>
+    public string? Title { get; init; }
+
+    public string? Description { get; init; }
+    public ProzorroValue? Value { get; init; }
+    public ProzorroAddress? Address { get; init; }
+    public ProzorroClassification? Classification { get; init; }
 }
