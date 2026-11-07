@@ -10,6 +10,18 @@ namespace CivicTrace.Application.Features.Procurements.Common;
 public static class ProcurementMapper
 {
     public static ProcurementResponse ToResponse(Procurement p, string? verifiedBy)
+        => ToResponse(p, verifiedBy, p.Buyer, p.Contractor, b => b.Bidder);
+
+    /// <summary>
+    /// Той самий результат, але організації передаються явно: потрібно, коли закупівля ще не збережена
+    /// й навігаційні властивості порожні (імпорт з Prozorro, режим dry run).
+    /// </summary>
+    public static ProcurementResponse ToResponse(
+        Procurement p,
+        string? verifiedBy,
+        Organization buyer,
+        Organization? contractor,
+        Func<Bid, Organization> bidderOf)
     {
         var missing = p.DataGaps.Where(g => g.Kind == DataGapKind.Missing).OrderBy(g => g.Id).Select(g => g.Text).ToList();
         var needsCheck = p.DataGaps.Where(g => g.Kind == DataGapKind.NeedsCheck).OrderBy(g => g.Id).Select(g => g.Text).ToList();
@@ -23,11 +35,11 @@ public static class ProcurementMapper
             CpvCode: p.Cpv.Code,
             CpvName: p.Cpv.Name,
             ProcurementType: MethodLabel(p.Method),
-            Buyer: p.Buyer.Name,
-            BuyerEdrpou: p.Buyer.Edrpou,
-            BuyerAddress: p.Buyer.Address,
-            Contractor: p.Contractor?.Name,
-            ContractorEdrpou: p.Contractor?.Edrpou,
+            Buyer: buyer.Name,
+            BuyerEdrpou: buyer.Edrpou,
+            BuyerAddress: buyer.Address,
+            Contractor: contractor?.Name,
+            ContractorEdrpou: contractor?.Edrpou,
             ExpectedAmount: p.ExpectedAmount?.Value,
             ContractAmount: p.ContractAmount?.Value,
             Currency: p.ExpectedAmount?.Currency ?? p.ContractAmount?.Currency ?? "UAH",
@@ -59,8 +71,8 @@ public static class ProcurementMapper
             Bids: p.Bids
                 .OrderBy(b => b.Id)
                 .Select(b => new BidResponse(
-                    b.Bidder.Name,
-                    b.Bidder.Edrpou,
+                    bidderOf(b).Name,
+                    bidderOf(b).Edrpou,
                     b.Amount.Value,
                     b.Amount.VatIncluded,
                     b.Outcome is { } o ? OutcomeCode(o) : null))
