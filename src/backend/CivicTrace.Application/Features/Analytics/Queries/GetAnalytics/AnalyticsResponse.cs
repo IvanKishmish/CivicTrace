@@ -19,7 +19,8 @@ public sealed record AnalyticsGroup(
     AmountTotals ContractAmount,
     int RecordsWithMissingData,
     double AverageMissingDataItems,
-    int RecordsNeedingCheck);
+    int RecordsNeedingCheck,
+    decimal? FundingAmount);
 
 public sealed record AnalyticsResponse(
     string GroupBy,

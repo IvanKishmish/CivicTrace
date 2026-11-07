@@ -4,7 +4,7 @@ namespace CivicTrace.Application.Features.Analytics.Queries.GetAnalytics;
 
 public sealed class GetAnalyticsQueryValidator : AbstractValidator<GetAnalyticsQuery>
 {
-    public static readonly string[] GroupByValues = ["buyer", "cpv", "year", "method", "status"];
+    public static readonly string[] GroupByValues = ["buyer", "cpv", "year", "method", "status", "funding", "expenditure"];
 
     public GetAnalyticsQueryValidator()
     {

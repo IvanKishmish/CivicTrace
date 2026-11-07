@@ -18,7 +18,8 @@ public sealed class GetAnalyticsQueryHandler(
         "Показники описують, що відомо з оприлюднених даних, і не оцінюють законність чи доцільність закупівель.",
         "Суми не складаються в одне число: окремо «з ПДВ», «без ПДВ» і «ПДВ не вказано».",
         "Середня кількість пропозицій рахується лише там, де сторінка закупівлі показує повний реєстр пропозицій.",
-        "Закупівля без використання електронної системи — це спосіб проведення, а не висновок про порушення."
+        "Закупівля без використання електронної системи — це спосіб проведення, а не висновок про порушення.",
+        "Суми фінансування (fundingAmount) беруться з плану закупівлі; одна закупівля може мати кілька джерел фінансування."
     ];
 
     public async ValueTask<ErrorOr<AnalyticsResponse>> Handle(GetAnalyticsQuery query, CancellationToken ct = default)
@@ -49,7 +50,8 @@ public sealed class GetAnalyticsQueryHandler(
                 BidCount = p.Bids.Count(),
                 MissingCount = p.DataGaps.Count(g => g.Kind == DataGapKind.Missing),
                 NeedsCheckCount = p.DataGaps.Count(g => g.Kind == DataGapKind.NeedsCheck),
-                EventDates = p.Events.Where(e => e.Date != null).Select(e => e.Date).ToList()
+                EventDates = p.Events.Where(e => e.Date != null).Select(e => e.Date).ToList(),
+                Funding = p.FundingSources.Select(f => new { f.Source, f.ExpenditureCode, f.Amount }).ToList()
             })
             .ToListAsync(ct);
 
@@ -70,19 +72,66 @@ public sealed class GetAnalyticsQueryHandler(
                 x.BidCount,
                 x.MissingCount,
                 x.NeedsCheckCount,
-                x.EventDates.Min()?.Year))
+                x.EventDates.Min()?.Year,
+                x.Funding.Select(f => new FundingRow(f.Source, f.ExpenditureCode, f.Amount)).ToList()))
             .ToList();
 
-        var groups = rows
-            .GroupBy(r => KeyOf(query.GroupBy, r).Key)
-            .Select(g => BuildGroup(g.Key, KeyOf(query.GroupBy, g.First()).Label, g.ToList()))
-            .OrderByDescending(g => g.ProcurementsCount)
-            .ThenBy(g => g.Key, StringComparer.Ordinal)
-            .ToList();
+        var groups = (query.GroupBy is "funding" or "expenditure")
+            ? BuildFundingGroups(query.GroupBy, rows)
+            : BuildRegularGroups(query.GroupBy, rows);
 
         var summary = BuildGroup("all", "Усі закупівлі", rows);
 
         return new AnalyticsResponse(query.GroupBy, summary, groups, Notes);
+    }
+
+    private static List<AnalyticsGroup> BuildRegularGroups(string groupBy, IReadOnlyList<Row> rows)
+        => rows
+            .GroupBy(r => KeyOf(groupBy, r).Key)
+            .Select(g => BuildGroup(g.Key, KeyOf(groupBy, g.First()).Label, g.ToList()))
+            .OrderByDescending(g => g.ProcurementsCount)
+            .ThenBy(g => g.Key, StringComparer.Ordinal)
+            .ToList();
+
+    /// <summary>
+    /// Закупівля потрапляє в групу один раз, навіть якщо в ній кілька рядків фінансування з тим самим ключем.
+    /// FundingAmount — сума фінансування за ключем.
+    /// </summary>
+    private static List<AnalyticsGroup> BuildFundingGroups(string groupBy, IReadOnlyList<Row> rows)
+    {
+        var items = new List<(string Key, string Label, Row Row, decimal Amount)>();
+
+        foreach (var row in rows)
+        {
+            if (row.Funding.Count == 0)
+            {
+                items.Add((
+                    "unknown",
+                    groupBy == "funding" ? "Джерело фінансування невідоме" : "Код видатків невідомий",
+                    row,
+                    0m));
+                continue;
+            }
+
+            foreach (var funding in row.Funding)
+            {
+                var key = groupBy == "funding" ? funding.Source : funding.ExpenditureCode ?? "unknown";
+                var label = groupBy == "funding" ? funding.Source : funding.ExpenditureCode ?? "Код видатків невідомий";
+
+                items.Add((key, label, row, funding.Amount));
+            }
+        }
+
+        return items
+            .GroupBy(i => i.Key)
+            .Select(g => BuildGroup(
+                g.Key,
+                g.First().Label,
+                g.Select(i => i.Row).DistinctBy(r => r.ExternalId).ToList(),
+                g.Sum(i => i.Amount)))
+            .OrderByDescending(g => g.ProcurementsCount)
+            .ThenBy(g => g.Key, StringComparer.Ordinal)
+            .ToList();
     }
 
     private static (string Key, string Label) KeyOf(string groupBy, Row row) => groupBy switch
@@ -103,7 +152,7 @@ public sealed class GetAnalyticsQueryHandler(
         _ => throw new ArgumentOutOfRangeException(nameof(method), method, null)
     };
 
-    private static AnalyticsGroup BuildGroup(string key, string label, IReadOnlyList<Row> rows)
+    private static AnalyticsGroup BuildGroup(string key, string label, IReadOnlyList<Row> rows, decimal? fundingAmount = null)
     {
         var completeLists = rows.Where(r => r.BidsListComplete).ToList();
 
@@ -120,7 +169,8 @@ public sealed class GetAnalyticsQueryHandler(
             ContractAmount: Totals(rows.Select(r => (r.ContractValue, r.ContractVat))),
             RecordsWithMissingData: rows.Count(r => r.MissingCount > 0),
             AverageMissingDataItems: rows.Count == 0 ? 0 : rows.Average(r => r.MissingCount),
-            RecordsNeedingCheck: rows.Count(r => r.NeedsCheckCount > 0));
+            RecordsNeedingCheck: rows.Count(r => r.NeedsCheckCount > 0),
+            FundingAmount: fundingAmount);
     }
 
     private static AmountTotals Totals(IEnumerable<(decimal? Value, bool? Vat)> amounts)
@@ -145,6 +195,8 @@ public sealed class GetAnalyticsQueryHandler(
         return new AmountTotals(withVat, withoutVat, unspecified);
     }
 
+    private sealed record FundingRow(string Source, string? ExpenditureCode, decimal Amount);
+
     private sealed record Row(
         string ExternalId,
         string BuyerEdrpou,
@@ -161,5 +213,6 @@ public sealed class GetAnalyticsQueryHandler(
         int BidCount,
         int MissingCount,
         int NeedsCheckCount,
-        int? Year);
+        int? Year,
+        IReadOnlyList<FundingRow> Funding);
 }
