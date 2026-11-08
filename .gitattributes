@@ -1,0 +1,56 @@
+# ---------------------------------------------------------------------------
+# Єдині кінці рядків для всієї команди (2 × Windows, macOS, Linux).
+# У репозиторії всі текстові файли зберігаються з LF; у робочій теці теж LF.
+# Ці правила мають пріоритет над налаштуванням core.autocrlf.
+# ---------------------------------------------------------------------------
+* text=auto eol=lf
+
+# --- Файли, які Windows-інструменти очікують з CRLF
+*.sln   text eol=crlf
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=crlf
+
+# --- Файли, які ламаються, якщо мають CRLF (Linux-контейнери, shell)
+*.sh        text eol=lf
+Dockerfile  text eol=lf
+*.dockerfile text eol=lf
+.dockerignore text eol=lf
+compose*.yaml text eol=lf
+compose*.yml  text eol=lf
+.env*       text eol=lf
+
+# --- Явно текстові типи
+*.cs        text diff=csharp
+*.csproj    text
+*.slnx      text
+*.props     text
+*.targets   text
+*.json      text
+*.md        text diff=markdown
+*.html      text diff=html
+*.css       text diff=css
+*.js        text
+*.svg       text
+*.yml       text
+*.yaml      text
+*.http      text
+*.txt       text
+*.csv       text
+
+# --- Бінарні файли: нічого в них не змінювати
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.ico   binary
+*.pdf   binary
+*.zip   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+
+# --- Згенерований код міграцій EF: не показувати в статистиці мов GitHub і згортати в diff
+**/Migrations/*.cs linguist-generated=true
