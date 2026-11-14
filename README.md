@@ -37,6 +37,10 @@ The prototype will start with one verified category and a small sample of real p
 - [Prozorro API documentation](https://prozorro-api-docs.readthedocs.io/en/master/tendering/basic-actions/tenders.html)
 - [Poltava open-data portal](https://odata.rada-poltava.gov.ua/datasetsall)
 
+## Frontend prototype
+
+Run `node src/frontend/serve.mjs` from the repository root and open http://127.0.0.1:4173/. The frontend uses the backend API at http://localhost:5000. The local server provides the canonical `data/procurements.seed.json` when the API is unavailable. For cross-origin requests, allow http://127.0.0.1:4173 in `CORS_ALLOWED_ORIGINS` on the backend.
+
 ## Status
 
 Planning and data validation. API field availability, procurement selection rules, exact locations, and links to city budget records must be confirmed from real examples before being promised in the product.

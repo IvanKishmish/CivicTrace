@@ -3,7 +3,7 @@ import { mapProcurement } from './mapper.js';
 
 async function readJson(url, signal) {
   const response = await fetch(url, { signal });
-  if (!response.ok) throw new Error('HTTP ' + response.status);
+  if (!response.ok) throw Object.assign(new Error('HTTP ' + response.status), { status: response.status });
   return response.json();
 }
 
@@ -62,8 +62,23 @@ export async function loadCatalog() {
     return { items, origin: 'static', apiFailed };
   } catch (cause) {
     const message = apiFailed
-      ? 'API недоступне, а локальний JSON не завантажився.'
-      : 'Локальний JSON не завантажився.';
+      ? 'API недоступне, а початковий набір не завантажився.'
+      : 'Початковий набір не завантажився.';
     throw new Error(message, { cause });
   }
+}
+
+export async function loadProcurement(id) {
+  if (!id) return null;
+  if (catalogConfig.mode === 'api') {
+    const endpoint = '/api/v1/procurements/' + encodeURIComponent(id);
+    try {
+      return await readJson(new URL(endpoint, catalogConfig.apiBaseUrl), AbortSignal.timeout(8000));
+    } catch (error) {
+      if (error.status === 404) return null;
+    }
+  }
+  const items = await readJson(catalogConfig.staticUrl, AbortSignal.timeout(5000));
+  if (!Array.isArray(items)) throw new Error('Некоректний початковий набір');
+  return items.find(item => (item.externalId ?? item.id) === id) ?? null;
 }

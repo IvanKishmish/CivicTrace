@@ -11,10 +11,3 @@ export function date(value) {
 export function safeLink(url, label = 'Переглянути джерело ↗') {
   try { const parsed = new URL(url); if (!['https:','http:'].includes(parsed.protocol)) throw Error(); return `<a href="${escapeHtml(parsed.href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`; } catch { return '<span class="muted">Джерело не надано</span>'; }
 }
-export async function loadProcurements() {
-  const response = await fetch('./mock-procurements.json');
-  if (!response.ok) throw new Error('Не вдалося завантажити дані');
-  const data = await response.json();
-  if (!Array.isArray(data) || data.some(item => !item || typeof item !== 'object' || typeof item.id !== 'string') || new Set(data.map(item=>item.id)).size !== data.length) throw new Error('Некоректний формат даних');
-  return data;
-}
