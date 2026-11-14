@@ -9,7 +9,6 @@ const banner = document.querySelector('#catalog-mode');
 const controls = form.querySelector('fieldset');
 let items = [];
 let active = false;
-let origin;
 
 function element(tag, text, className) {
   const node = document.createElement(tag);
@@ -45,7 +44,7 @@ function card(item) {
   const footer = element('div', null, 'card-bottom');
   footer.append(element('span', 'Джерело', 'muted'));
   if (item.sourceUrl) {
-    const label = origin === 'static' ? 'Демо-посилання ↗' : 'Відкрити джерело ↗';
+    const label = 'Відкрити джерело ↗';
     const link = element('a', label);
     link.href = item.sourceUrl;
     link.target = '_blank';
@@ -94,10 +93,10 @@ async function init() {
   count.textContent = 'Завантажуємо закупівлі…';
   try {
     const catalog = await loadCatalog();
-    ({ items, origin } = catalog);
+    items = catalog.items;
     const message = catalog.apiFailed
-      ? 'API недоступне. Показуємо локальні демонстраційні дані.'
-      : origin === 'static' ? 'ДЕМО · Показуємо вигадані записи з локального JSON.' : 'Джерело каталогу · API CivicTrace';
+      ? 'API недоступне. Показуємо початковий набір CivicTrace.'
+      : catalog.origin === 'static' ? 'Джерело каталогу · Початковий набір CivicTrace' : 'Джерело каталогу · API CivicTrace';
     banner.append(element('span', message));
     if (catalog.apiFailed) banner.append(retryButton());
     populateFilter(form.elements.category, items, 'category');

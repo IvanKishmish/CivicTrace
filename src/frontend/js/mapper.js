@@ -31,12 +31,12 @@ export function mapProcurement(item) {
   const externalId = text(item?.externalId) ?? text(item?.id);
   if (!externalId) throw new Error('Запис не має ідентифікатора');
 
-  const status = text(item.status);
+  const status = text(item.statusLabel) ?? text(item.status);
   return {
     externalId,
     title: text(item.title),
     buyer: text(typeof item.buyer === 'object' ? item.buyer?.name : item.buyer),
-    category: text(item.category),
+    category: text(item.kind) ?? text(item.category),
     status: Object.hasOwn(statuses, status) ? statuses[status] : status,
     expectedAmount: amount(item.expectedAmount),
     contractAmount: amount(item.contractAmount),
