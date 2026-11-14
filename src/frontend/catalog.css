@@ -1,0 +1,40 @@
+#filters {
+  display: block;
+}
+
+.catalog-controls {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  align-items: end;
+  gap: 12px;
+  min-width: 0;
+}
+
+.catalog-controls > div {
+  min-width: 0;
+}
+
+#catalog-mode {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.procurement-card .card-facts strong {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 680px) {
+  .catalog-controls {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .catalog-controls .search-field,
+  .catalog-controls button {
+    grid-column: 1 / -1;
+  }
+}
