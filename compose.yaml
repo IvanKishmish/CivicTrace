@@ -1,0 +1,54 @@
+# Запуск:  docker compose up --build
+# Потрібен файл .env.docker (скопіюйте з .env.docker.example й заповніть секрети).
+name: civictrace
+
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    # POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD беруться з .env.docker
+    env_file:
+      - .env.docker
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      # $$ — щоб Compose не підставляв значення сам: змінні читає shell усередині контейнера
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    # Порт назовні не публікуємо. Щоб підключитися з хоста (DBeaver, psql), розкоментуйте:
+    # ports:
+    #   - "5433:5432"
+
+  api:
+    build:
+      context: .
+      dockerfile: src/backend/CivicTrace.WebApi/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    # Секрети (Jwt__Secret, рядок підключення, адмін) беруться з .env.docker
+    env_file:
+      - .env.docker
+    # Несекретні налаштування; значення тут мають пріоритет над env_file
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      APPLY_MIGRATIONS: "true"
+      Seed__ImportProcurements: "true"
+      Seed__ProcurementsPath: /app/data/procurements.seed.json
+      OpenApi__Enabled: "true"
+      # Фронтенд віддає сам API (один адрес http://localhost:8080). Якщо у src/frontend ще немає index.html,
+      # сторінка / дасть 404, але API й Scalar працюють. Щоб вимкнути, приберіть цей рядок.
+      Frontend__RootPath: /app/frontend
+      LOG_DIRECTORY: /app/logs
+    ports:
+      - "8080:8080"
+    volumes:
+      - api-logs:/app/logs
+
+volumes:
+  db-data:
+  api-logs:
