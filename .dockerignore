@@ -1,0 +1,49 @@
+# ==========================================
+# Version Control & Git
+# ==========================================
+.git
+.gitignore
+.gitattributes
+
+# ==========================================
+# IDEs & Editors
+# ==========================================
+.idea
+.vs
+.vscode
+*.suo
+*.user
+*.userosscache
+*.sln.iml
+*.DotSettings.user
+*.swp
+*.swo
+*~
+
+# ==========================================
+# .NET Build Artifacts & Logs
+# ==========================================
+**/bin
+**/obj
+**/logs
+*.log
+
+# ==========================================
+# Environment & Secrets (keep *.example)
+# ==========================================
+.env
+.env.*
+!*.example
+!**/*.example
+
+# ==========================================
+# Docker & OS Files
+# ==========================================
+**/Dockerfile*
+**/.dockerignore
+compose.yaml
+docker-compose*.yml
+docker-compose*.yaml
+.DS_Store
+Thumbs.db
+desktop.ini
