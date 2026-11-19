@@ -1,0 +1,12 @@
+{
+  "minPriceIncreasePercent": 1.5,
+  "lowMedianRateDiffPercent": 30.0,
+  "longUnrentedDays": 180,
+  "weights": {
+    "SINGLE_BIDDER": 25,
+    "MIN_PRICE_INCREASE": 20,
+    "DIRECT_OR_BEFORE_ETS": 20,
+    "REPEATED_FAILED_ATTEMPTS": 20,
+    "LOW_RATE_VS_MEDIAN": 15
+  }
+}
