@@ -3,22 +3,37 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Картка закупівлі CivicTrace: оприлюднені відомості, події та джерела.">
+  <meta name="description" content="Картка закупівлі CivicTrace: оприлюднені відомості, фінансування, пропозиції, події та джерела.">
   <title>Картка закупівлі — CivicTrace</title>
-  <link rel="stylesheet" href="styles.css">
-  <script type="module" src="detail.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script type="module" src="./js/detail.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Перейти до вмісту</a>
-  <header class="site-header"><div class="container header-inner">
-    <a class="brand" href="index.html" aria-label="CivicTrace — каталог">Civic<span>Trace</span><span class="brand-dot" aria-hidden="true">↗</span></a>
-    <nav aria-label="Основна навігація"><a class="nav-link" href="index.html">Каталог закупівель</a><span class="muted">Полтава</span></nav>
-  </div></header>
-  <div class="mock-banner"><div class="container">Джерела та оприлюднені відомості</div></div>
+
+  <header class="site-header container">
+    <div class="header-inner">
+      <a class="brand" href="./index.html" aria-label="CivicTrace — каталог">Civic<span>Trace</span><span class="brand-dot" aria-hidden="true">↗</span></a>
+      <nav id="site-nav" class="site-nav" aria-label="Основна навігація"></nav>
+    </div>
+  </header>
+
+  <div class="mock-banner">
+    <div class="container banner-row" id="detail-mode" aria-live="polite">Джерела та оприлюднені відомості</div>
+  </div>
+
   <main class="container" id="main">
-    <a class="back-link" href="index.html">← До каталогу</a>
-    <div id="detail" aria-live="polite" aria-busy="true"><section class="panel"><p>Завантажуємо картку закупівлі…</p></section></div>
+    <a class="back-link" href="./index.html">← До каталогу</a>
+    <div id="detail" aria-live="polite" aria-busy="true">
+      <section class="panel" style="padding:24px;"><p>Завантажуємо картку закупівлі…</p></section>
+    </div>
   </main>
-  <footer class="container site-footer"><strong>CivicTrace</strong><p>Від плану до оприлюднених свідчень. Відсутність даних не є доказом порушення або виконання робіт.</p></footer>
+
+  <footer class="container site-footer">
+    <span class="brand">CivicTrace</span>
+    <span>Від плану до оприлюднених свідчень. · <a href="./import.html" class="muted">Адміністрування</a></span>
+  </footer>
 </body>
 </html>

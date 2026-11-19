@@ -1,8 +1,28 @@
+using System.Text.Json.Serialization;
+
 namespace CivicTrace.Application.Features.Prozorro.Models;
 
-// Мінімальна форма відповіді GET /tenders/{id} публічного API Prozorro (назви полів за документацією
-// prozorro-api-docs.readthedocs.io). Усе необов'язкове: відсутні поля не мають ламати розбір.
-// Дати лишаються рядками й розбираються у ProzorroTenderMapper.
+public sealed class ProzorroTenderFeedEnvelope
+{
+    public List<ProzorroTenderFeedItem>? Data { get; init; }
+
+    [JsonPropertyName("next_page")]
+    public ProzorroNextPage? NextPage { get; init; }
+}
+
+public sealed class ProzorroNextPage
+{
+    public string? Offset { get; init; }
+}
+
+public sealed class ProzorroTenderFeedItem
+{
+    public string Id { get; init; } = string.Empty;
+    public string? TenderID { get; init; }
+    public string? Status { get; init; }
+    public string? DateModified { get; init; }
+    public ProzorroOrganization? ProcuringEntity { get; init; }
+}
 
 public sealed class ProzorroTenderEnvelope
 {
@@ -126,9 +146,6 @@ public sealed class ProzorroCauseDetails
     public string? Description { get; init; }
 }
 
-// ---------- плани закупівель (GET /plans/{id})
-
-/// <summary>Посилання тендера на план (поле plans тендера).</summary>
 public sealed class ProzorroPlanRelation
 {
     public string? Id { get; init; }
@@ -159,10 +176,7 @@ public sealed class ProzorroBudget
 public sealed class ProzorroBudgetBreakdown
 {
     public string? Id { get; init; }
-
-    /// <summary>state | crimea | local | own | fund | loan | other</summary>
     public string? Title { get; init; }
-
     public string? Description { get; init; }
     public ProzorroValue? Value { get; init; }
     public ProzorroAddress? Address { get; init; }

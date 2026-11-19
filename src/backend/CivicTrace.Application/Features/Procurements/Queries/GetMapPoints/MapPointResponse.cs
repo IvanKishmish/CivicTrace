@@ -7,4 +7,13 @@ public sealed record MapPointResponse(
     string PlaceType,
     double Latitude,
     double Longitude,
-    string? CoordinatesStatus);
+    string? CoordinatesStatus,
+    string Status,
+    string StatusLabel,
+    string Buyer,
+    decimal? ExpectedAmount,
+    decimal? ContractAmount,
+    string Currency,
+    bool? ExpectedVatIncluded,
+    bool? ContractVatIncluded,
+    string CpvCode);

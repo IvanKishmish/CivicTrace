@@ -3,7 +3,6 @@ namespace CivicTrace.Application.Common;
 public static class Roles
 {
     public const string Admin = "Admin";
-    public const string Editor = "Editor";
 
-    public static readonly string[] All = [Admin, Editor];
+    public static readonly string[] All = [Admin];
 }

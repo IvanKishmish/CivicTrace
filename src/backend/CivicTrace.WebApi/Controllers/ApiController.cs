@@ -39,21 +39,32 @@ public abstract class ApiController(IMediator mediator) : Controller
 
     private IActionResult Problem(Error error)
     {
-        var statusCode = error.Type switch
+        var statusCode = error.Code switch
         {
-            ErrorType.Validation => StatusCodes.Status400BadRequest,
-            ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
-            ErrorType.Forbidden => StatusCodes.Status403Forbidden,
-            ErrorType.NotFound => StatusCodes.Status404NotFound,
-            ErrorType.Conflict => StatusCodes.Status409Conflict,
-            _ => StatusCodes.Status500InternalServerError
+            "Prozorro.Timeout" => StatusCodes.Status504GatewayTimeout,
+            "Prozorro.RateLimited" => StatusCodes.Status429TooManyRequests,
+            _ when error.Code.StartsWith("Prozorro.", StringComparison.Ordinal) && error.Type == ErrorType.Failure
+                => StatusCodes.Status502BadGateway,
+            _ => error.Type switch
+            {
+                ErrorType.Validation => StatusCodes.Status400BadRequest,
+                ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
+                ErrorType.Forbidden => StatusCodes.Status403Forbidden,
+                ErrorType.NotFound => StatusCodes.Status404NotFound,
+                ErrorType.Conflict => StatusCodes.Status409Conflict,
+                _ => StatusCodes.Status500InternalServerError
+            }
         };
 
-        // Per RFC 7807: "title" is a short, generic summary of the error type;
-        // "detail" is the specific reason for this occurrence (error.Description).
         return Problem(
             statusCode: statusCode,
-            title: GetTitleForErrorType(error.Type),
+            title: statusCode switch
+            {
+                StatusCodes.Status502BadGateway => "Bad Gateway",
+                StatusCodes.Status504GatewayTimeout => "Gateway Timeout",
+                StatusCodes.Status429TooManyRequests => "Too Many Requests",
+                _ => GetTitleForErrorType(error.Type)
+            },
             detail: error.Description,
             type: error.Code);
     }

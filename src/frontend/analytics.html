@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Зведена аналітика та відкритий експорт даних CivicTrace у CSV і JSON.">
+  <title>Аналітика та експорт — CivicTrace</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./catalog.css">
+  <script type="module" src="./js/analytics.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">До вмісту</a>
+
+  <header class="site-header container">
+    <a class="brand" href="./index.html">Civic<span>Trace</span><span class="brand-dot" aria-hidden="true">↗</span></a>
+    <nav id="site-nav" class="site-nav" aria-label="Основна навігація"></nav>
+  </header>
+
+  <div class="mock-banner">
+    <div class="container banner-row" id="analytics-mode" aria-live="polite">Завантажуємо аналітику…</div>
+  </div>
+
+  <main id="main" class="container">
+    <section class="hero" style="padding:28px 0 22px;margin-bottom:22px;">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Відкриті дані та агрегація</p>
+          <h1 style="font-size:clamp(26px,3.6vw,40px);margin:6px 0 10px;">Аналітика закупівель і експорт</h1>
+        </div>
+        <div class="export-actions">
+          <button type="button" id="export-csv" class="button button-sm">Завантажити CSV</button>
+          <button type="button" id="export-json" class="button button-secondary button-sm">Завантажити JSON</button>
+        </div>
+      </div>
+      <p class="intro">
+        Показники описують структуру оприлюднених даних без оціночних суджень. Суми «з ПДВ», «без ПДВ» і «ПДВ не вказано» показані окремо.
+      </p>
+    </section>
+
+    <section aria-label="Вибір групування" style="margin-bottom:18px;">
+      <div id="group-tabs" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    </section>
+
+    <section id="analytics-summary" class="kpi-strip" aria-label="Загальні підсумки"></section>
+
+    <section class="panel" style="padding:22px;margin-bottom:20px;">
+      <h2 style="margin-top:0;">Кількість закупівель за обраним групуванням</h2>
+      <div id="analytics-chart"></div>
+    </section>
+
+    <section class="panel" style="padding:22px;margin-bottom:20px;">
+      <h2 style="margin-top:0;">Детальна таблиця груп</h2>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead id="analytics-table-head"></thead>
+          <tbody id="analytics-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="notice notice-info" aria-label="Пояснення до показників">
+      <strong>Як читати ці показники:</strong>
+      <ul id="analytics-notes" class="clean-list"></ul>
+    </section>
+  </main>
+
+  <footer class="container site-footer">
+    <span class="brand">CivicTrace</span>
+    <span>Експорт у відкритих форматах CSV та JSON. · <a href="./import.html" class="muted">Адміністрування</a></span>
+  </footer>
+</body>
+</html>

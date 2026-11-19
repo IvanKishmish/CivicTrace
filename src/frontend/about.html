@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Про дані, методологію та обмеження сервісу CivicTrace.">
+  <title>Про дані — CivicTrace</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./js/about.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">До вмісту</a>
+
+  <header class="site-header container">
+    <a class="brand" href="./index.html">Civic<span>Trace</span><span class="brand-dot" aria-hidden="true">↗</span></a>
+    <nav id="site-nav" class="site-nav" aria-label="Основна навігація"></nav>
+  </header>
+
+  <div class="mock-banner">
+    <div class="container">Методологія та принципи роботи з відкритими даними</div>
+  </div>
+
+  <main id="main" class="container">
+    <section class="hero" style="padding:28px 0 22px;margin-bottom:22px;">
+      <p class="eyebrow">Принцип проєкту</p>
+      <h1 style="font-size:clamp(26px,3.6vw,40px);">Лише те, що підтверджено джерелами</h1>
+      <p class="intro">
+        CivicTrace об’єднує відкриті відомості Prozorro про закупівлі Полтави в зрозумілу картку: етап процедури, замовник, виконавець, суми з позначкою ПДВ, фінансування, події та зафіксовані прогалини.
+      </p>
+    </section>
+
+    <div class="detail-grid" style="margin-top:0;">
+      <div>
+        <section class="panel">
+          <h2>Що означають статуси</h2>
+          <ul class="clean-list">
+            <li><strong>Статус «Завершена» у Prozorro</strong> означає лише завершення процедури закупівлі, а не фактичне виконання робіт чи постачання товарів.</li>
+            <li><strong>Фактичне виконання не підтверджено</strong> (<code>not_confirmed</code>) показується для всіх укладених договорів, доки не додано підтвердження з відкритих реєстрів платежів або актів.</li>
+            <li><strong>Торги не відбулися</strong> (<code>not_held</code>) означає, що закупівлю відмінено без укладення договору.</li>
+            <li><strong>Закупівля без використання електронної системи</strong> — це передбачений законодавством спосіб проведення, а не висновок про порушення.</li>
+          </ul>
+        </section>
+
+        <section class="panel">
+          <h2>Робота із сумами, пропозиціями та координатами</h2>
+          <ul class="clean-list">
+            <li><strong>ПДВ:</strong> суми «з ПДВ», «без ПДВ» і «ПДВ не вказано» ніколи не додаються в одне загальне число.</li>
+            <li><strong>Пропозиції учасників:</strong> повна таблиця показується лише там, де Prozorro оприлюднює повний реєстр.</li>
+            <li><strong>Координати на мапі:</strong> у Prozorro зазвичай є лише текстова адреса. Автоматично визначені координати позначаються як <code>needs_check</code>, поки команда їх не звірить.</li>
+          </ul>
+        </section>
+      </div>
+
+      <aside>
+        <section class="panel">
+          <h2>Чого сервіс свідомо не робить</h2>
+          <ul class="clean-list">
+            <li>Не виставляє «індексів корупції» чи «ризиковості».</li>
+            <li>Не зберігає ідентифікаційні коди фізичних осіб (ФОП/РНОКПП) та контактних осіб замовників.</li>
+            <li>Не замінює порожні поля здогадками — замість цього явно перелічує їх у блоках «Чого не знайдено» та «Потребує перевірки».</li>
+          </ul>
+          <p class="small-note" style="margin-top:14px;">
+            Повернення до <a href="./index.html">каталогу закупівель</a> або <a href="./analytics.html">аналітики та експорту</a>.
+          </p>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="container site-footer">
+    <span class="brand">CivicTrace</span>
+    <span>Джерело: публічний API та веб-портал Prozorro. · <a href="./import.html" class="muted">Адміністрування</a></span>
+  </footer>
+</body>
+</html>

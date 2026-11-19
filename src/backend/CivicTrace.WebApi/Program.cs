@@ -100,16 +100,19 @@ try
 
     builder.Services.AddAuthorization();
 
-    // CORS потрібен лише якщо фронтенд відкривається з іншого походження (наприклад, Live Server на :5500).
+    // CORS потрібен лише якщо фронтенд відкривається з іншого походження (наприклад, serve.mjs на :4173).
     // Якщо фронтенд віддає сам API (Frontend:RootPath), CORS не потрібен.
     var corsOriginString = builder.Configuration["CORS_ALLOWED_ORIGINS"];
-    var corsEnabled = !string.IsNullOrWhiteSpace(corsOriginString);
+    var allowedOrigins = !string.IsNullOrWhiteSpace(corsOriginString)
+        ? corsOriginString.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        : builder.Environment.IsDevelopment()
+            ? ["http://127.0.0.1:4173", "http://localhost:4173", "http://127.0.0.1:5500", "http://localhost:5500"]
+            : [];
+
+    var corsEnabled = allowedOrigins.Length > 0;
 
     if (corsEnabled)
     {
-        var allowedOrigins = corsOriginString!
-            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
         builder.Services.AddCors(options =>
         {
             options.AddDefaultPolicy(policy =>
@@ -158,7 +161,8 @@ try
         app.MapScalarApiReference();
     }
 
-    app.UseHttpsRedirection();
+    if (!app.Environment.IsDevelopment())
+        app.UseHttpsRedirection();
 
     // Необов'язково: API віддає статичний фронтенд із вказаної теки (відносно ContentRoot)
     var frontendRoot = app.Configuration["Frontend:RootPath"];

@@ -1,5 +1,6 @@
 #filters {
   display: block;
+  padding: 18px;
 }
 
 .catalog-controls {
@@ -7,34 +8,105 @@
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr auto;
-  align-items: end;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
   gap: 12px;
+  align-items: end;
   min-width: 0;
 }
 
-.catalog-controls > div {
-  min-width: 0;
+.catalog-controls > div { min-width: 0; }
+
+.catalog-controls label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--muted);
 }
 
-#catalog-mode {
+.catalog-actions {
+  grid-column: 1 / -1;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 4px;
 }
 
-.procurement-card .card-facts strong {
-  overflow-wrap: anywhere;
+.checkbox-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.checkbox-field input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-height: auto;
+  margin: 0;
+  accent-color: var(--accent);
 }
 
-@media (max-width: 680px) {
-  .catalog-controls {
-    grid-template-columns: 1fr 1fr;
-  }
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.kpi-card {
+  padding: 14px 16px;
+}
+.kpi-card span {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+}
+.kpi-card strong {
+  display: block;
+  font-size: 22px;
+  margin-top: 4px;
+}
 
-  .catalog-controls .search-field,
-  .catalog-controls button {
-    grid-column: 1 / -1;
+.catalog-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(290px, 1fr);
+  gap: 24px;
+  margin-top: 14px;
+}
+
+.map-column .panel {
+  padding: 18px;
+}
+
+.map-column h2 {
+  font-size: 18px;
+  margin: 8px 0 6px;
+}
+
+.export-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 901px) {
+  .map-column {
+    position: sticky;
+    top: 16px;
+    align-self: start;
   }
+}
+
+@media (max-width: 900px) {
+  .catalog-controls { grid-template-columns: 1fr 1fr; }
+  .catalog-controls .search-field { grid-column: 1 / -1; }
+  .kpi-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .catalog-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 520px) {
+  .catalog-controls { grid-template-columns: 1fr; }
+  .kpi-strip { grid-template-columns: 1fr; }
 }

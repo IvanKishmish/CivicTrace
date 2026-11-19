@@ -84,13 +84,30 @@ public sealed class AuthController(IMediator mediator, IOptions<JwtOptions> jwtO
         return NoContent();
     }
 
+    [HttpGet("me")]
+    [Authorize]
+    public IActionResult Me([FromServices] CivicTrace.Application.Common.Interfaces.ICurrentUserService currentUser)
+    {
+        if (currentUser.UserId is null)
+            return Unauthorized();
+
+        return Ok(new
+        {
+            UserId = currentUser.UserId,
+            Email = currentUser.Email,
+            Roles = currentUser.Roles
+        });
+    }
+
     private void SetRefreshTokenCookie(string refreshToken)
     {
+        var isLocalOrHttps = Request.IsHttps || Request.Host.Host is "localhost" or "127.0.0.1";
+
         Response.Cookies.Append("refresh_token", refreshToken, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
+            Secure = isLocalOrHttps,
+            SameSite = isLocalOrHttps ? SameSiteMode.None : SameSiteMode.Lax,
             Expires = DateTimeOffset.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpiryDays)
         });
     }
