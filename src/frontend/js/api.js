@@ -8,6 +8,7 @@ export function getAuthState() {
 
 export function clearAuthState() {
   authState = { accessToken: null, email: null, userId: null, roles: [] };
+  window.dispatchEvent(new Event('civictrace-auth'));
 }
 
 function decodeJwtPayload(token) {
@@ -23,6 +24,7 @@ function setAccessToken(token) {
   const rawRoles = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ?? payload.role ?? [];
   const roles = Array.isArray(rawRoles) ? rawRoles : rawRoles ? [rawRoles] : [];
   authState = { accessToken: token, email: payload.email ?? null, userId: payload.sub ?? null, roles };
+  window.dispatchEvent(new Event("civictrace-auth"));
   return getAuthState();
 }
 
@@ -100,12 +102,13 @@ export async function logoutAdmin() {
   } finally { clearAuthState(); }
 }
 
-export async function triggerRentalSync(maxBatchesPerSlice = 60) {
+export async function triggerRentalSync(maxBatchesPerSlice = 60, signal) {
   if (!authState.accessToken) throw new Error('Потрібен вхід адміністратора.');
   const res = await fetch(`${CONFIG.apiBaseUrl}/rentals/sync`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authState.accessToken}` },
-    body: JSON.stringify({ maxBatchesPerSlice })
+    body: JSON.stringify({ maxBatchesPerSlice }),
+    signal
   });
   if (!res.ok) throw new Error(await parseError(res));
   return await res.json();

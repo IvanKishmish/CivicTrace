@@ -1,3 +1,5 @@
+import { getAuthState, tryRefreshSession } from './api.js';
+
 export function renderNav(activeKey) {
   const nav = document.getElementById('site-nav');
   if (!nav) return;
@@ -5,12 +7,35 @@ export function renderNav(activeKey) {
     { key: 'catalog', href: './index.html', label: 'Каталог' },
     { key: 'map', href: './map.html', label: 'Мапа об’єктів' },
     { key: 'analytics', href: './analytics.html', label: 'Аналітика і ризики' },
-    { key: 'about', href: './about.html', label: 'Методика і дефекти' },
+    { key: 'about', href: './about.html', label: 'Про сервіс' },
     { key: 'admin', href: './import.html', label: 'Вхід' }
   ];
   nav.innerHTML = links
-    .map((l) => `<a class="nav-link${l.key === activeKey ? ' is-active' : ''}${l.key === 'admin' ? ' nav-link-admin' : ''}" href="${l.href}"${l.key === activeKey ? ' aria-current="page"' : ''}>${l.key === 'admin' ? 'Вхід адміністратора' : l.label}</a>`)
+    .map((l) => `<a class="nav-link${l.key === activeKey ? ' is-active' : ''}${l.key === 'admin' ? ' nav-link-admin' : ''}" href="${l.href}"${l.key === activeKey ? ' aria-current="page"' : ''}>${l.key === 'admin' ? (getAuthState().roles.includes('Admin') ? 'Кабінет адміністратора' : 'Вхід адміністратора') : l.label}</a>`)
     .join('');
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'theme-toggle';
+  toggle.setAttribute('role', 'switch');
+  toggle.setAttribute('aria-label', 'Темна тема');
+  toggle.innerHTML = '<span class="theme-track" aria-hidden="true"><span class="theme-thumb"></span><span class="theme-sun">☀</span><span class="theme-moon">☾</span></span>';
+  function updateThemeLabel() {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    toggle.setAttribute('aria-checked', String(dark));
+    toggle.title = `Увімкнути ${dark ? 'світлу' : 'темну'} тему`;
+  }
+  updateThemeLabel();
+  toggle.addEventListener('click', () => {
+    const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = theme;
+    try { localStorage.setItem('civictrace-theme', theme); } catch {}
+    updateThemeLabel();
+  });
+  nav.append(toggle);
+  window.addEventListener('civictrace-auth', () => {
+    nav.querySelector('.nav-link-admin').textContent = getAuthState().roles.includes('Admin') ? 'Кабінет адміністратора' : 'Вхід адміністратора';
+  });
+  if (activeKey !== 'admin') tryRefreshSession();
 }
 
 export function renderLastUpdatedBanner(el, lastUpdatedAt, extraText = '') {
