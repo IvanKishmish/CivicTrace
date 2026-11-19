@@ -28,10 +28,13 @@ public sealed class ProcurementsController(IMediator mediator) : ApiController(m
     }
 
     [HttpPost("{externalId}/verify")]
-    [Authorize(Roles = $"{Roles.Editor},{Roles.Admin}")]
-    public async Task<IActionResult> Verify(string externalId, VerifyProcurementRequest request, CancellationToken ct = default)
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<IActionResult> Verify(
+        string externalId,
+        [FromBody] VerifyProcurementRequest? request = null,
+        CancellationToken ct = default)
     {
-        var result = await Mediator.Send(new MarkProcurementVerifiedCommand(externalId, request.VerifiedAt), ct);
+        var result = await Mediator.Send(new MarkProcurementVerifiedCommand(externalId, request?.VerifiedAt), ct);
         return HandleResult(result);
     }
 }
