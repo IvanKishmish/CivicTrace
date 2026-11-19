@@ -125,14 +125,13 @@ public sealed partial class SyncRentalsCommandHandler(
             }
         });
 
-        var existingAuctionIds = (await dbContext.RentalAuctions.Select(a => a.AuctionId).ToListAsync(ct))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var existingAuctions = await dbContext.RentalAuctions.ToListAsync(ct);
+        var existingAuctionsById = existingAuctions.ToDictionary(a => a.AuctionId, StringComparer.OrdinalIgnoreCase);
 
         var newAuctions = new List<RentalAuction>();
+        var refreshedAuctions = 0;
         foreach (var (auctionKey, dto) in matchedAuctions)
         {
-            if (existingAuctionIds.Contains(auctionKey)) continue;
-
             var roid = dto.RegistryObjectId ?? dto.LotId;
             RentalObject? parent = roid is not null && byOcid.TryGetValue(roid, out var found) ? found : null;
 
@@ -157,8 +156,16 @@ public sealed partial class SyncRentalsCommandHandler(
                 datePublished: ParseDate(dto.DatePublished), auctionDate: ParseDate(dto.AuctionPeriod?.StartDate),
                 dateCompleted: ParseDate(dto.DateCompleted), contractDateSigned: ParseDate(activeContract?.DateSigned));
 
-            newAuctions.Add(auction);
-            existingAuctionIds.Add(auctionKey);
+            if (existingAuctionsById.TryGetValue(auctionKey, out var existingAuction))
+            {
+                existingAuction.RefreshFrom(auction);
+                refreshedAuctions++;
+            }
+            else
+            {
+                newAuctions.Add(auction);
+                existingAuctionsById.Add(auctionKey, auction);
+            }
 
             if (parent is not null && dto.Status?.StartsWith("active", StringComparison.OrdinalIgnoreCase) == true && parent.StatusCode != "rented")
             {
@@ -173,9 +180,10 @@ public sealed partial class SyncRentalsCommandHandler(
             }
         }
 
-        if (newAuctions.Count > 0)
+        if (newAuctions.Count > 0 || refreshedAuctions > 0)
         {
-            dbContext.RentalAuctions.AddRange(newAuctions);
+            if (newAuctions.Count > 0)
+                dbContext.RentalAuctions.AddRange(newAuctions);
             await dbContext.SaveChangesAsync(ct);
         }
 
@@ -261,7 +269,7 @@ public sealed partial class SyncRentalsCommandHandler(
         if (raw is "sold" or "rented" || (contracts?.Any(c => c.Status == "active") == true)) return ("rented", "В оренді");
         if (raw is "free" or "available" or "active") return ("free", "Вільне");
         if (raw is "auction" or "tendering") return ("on_auction", "На аукціоні");
-        return ("free", string.IsNullOrWhiteSpace(raw) ? "Вільне / уточнюється" : raw);
+        return ("unknown", string.IsNullOrWhiteSpace(raw) ? "Статус не вказано" : $"Статус: {raw}");
     }
 
     private static string MapAuctionStatusLabel(string? status) => status switch

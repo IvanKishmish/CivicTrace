@@ -1,4 +1,5 @@
 using CivicTrace.Application.Common.Interfaces;
+using CivicTrace.Application.Features.Rentals.Common;
 using ErrorOr;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,9 @@ public sealed record RentalMapPointDto(
     string StatusCode,
     string StatusLabel,
     string ListType,
-    decimal? CurrentContractValue);
+    decimal? CurrentContractValue,
+    int RiskScore,
+    IReadOnlyList<RiskFlagDto> RiskFlags);
 
 public sealed record RentalMapResponse(
     int TotalObjects,
@@ -38,47 +41,40 @@ public sealed class GetRentalMapQueryHandler(IAppDbContext dbContext)
     {
         var all = await dbContext.RentalObjects
             .AsNoTracking()
-            .Select(r => new
-            {
-                r.Ocid,
-                r.NormalizedTitle,
-                r.ObjectType,
-                r.Address,
-                r.District,
-                r.Latitude,
-                r.Longitude,
-                r.CoordinatesStatus,
-                r.AreaSqm,
-                r.StatusCode,
-                r.StatusLabel,
-                r.ListType,
-                r.CurrentContractValue,
-                r.EnrichmentStatus
-            })
+            .Include(r => r.Auctions)
             .ToListAsync(ct);
 
+        var medianRate = RentalMapper.ComputeMedianRate(all.SelectMany(r => r.Auctions));
+        var riskRules = RiskRulesConfig.Load();
         var points = all
             .Where(r => r.Latitude != null && r.Longitude != null)
             .OrderByDescending(r => r.Ocid)
-            .Select(r => new RentalMapPointDto(
-                r.Ocid,
-                r.NormalizedTitle,
-                r.ObjectType,
-                r.Address,
-                r.District,
-                r.Latitude!.Value,
-                r.Longitude!.Value,
-                r.CoordinatesStatus,
-                r.AreaSqm,
-                r.StatusCode,
-                r.StatusLabel,
-                r.ListType,
-                r.CurrentContractValue))
+            .Select(r =>
+            {
+                var flags = RiskEvaluator.EvaluateObject(r, medianRate, riskRules);
+                return new RentalMapPointDto(
+                    r.Ocid,
+                    r.NormalizedTitle,
+                    r.ObjectType,
+                    r.Address,
+                    r.District,
+                    r.Latitude!.Value,
+                    r.Longitude!.Value,
+                    r.CoordinatesStatus,
+                    r.AreaSqm,
+                    r.StatusCode,
+                    r.StatusLabel,
+                    r.ListType,
+                    r.CurrentContractValue,
+                    flags.Sum(f => f.Weight),
+                    flags);
+            })
             .ToList();
 
         var total = all.Count;
         var mapped = points.Count;
-        var unmappedWithAddr = all.Count(r => r.Latitude == null && !string.IsNullOrWhiteSpace(r.Address));
+        var unmappedWithAddr = all.Count(r =>
+            (r.Latitude == null || r.Longitude == null) && !string.IsNullOrWhiteSpace(r.Address));
         var unmappedNoAddr = total - mapped - unmappedWithAddr;
         var pct = total == 0 ? 0 : Math.Round((total - mapped) * 100.0 / total, 1);
 

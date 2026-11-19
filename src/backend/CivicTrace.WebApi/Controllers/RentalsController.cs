@@ -28,6 +28,46 @@ public sealed class RentalsController(IMediator mediator) : ApiController(mediat
     public async Task<IActionResult> GetMap(CancellationToken ct = default)
         => HandleResult(await Mediator.Send(new GetRentalMapQuery(), ct));
 
+    [HttpGet("map/geojson")]
+    [AllowAnonymous]
+    [Produces("application/geo+json")]
+    public async Task<IActionResult> GetMapGeoJson(CancellationToken ct = default)
+    {
+        var result = await Mediator.Send(new GetRentalMapQuery(), ct);
+        if (result.IsError) return HandleResult(result);
+
+        return Ok(new
+        {
+            type = "FeatureCollection",
+            features = result.Value.Points.Select(point => new
+            {
+                type = "Feature",
+                id = point.Ocid,
+                geometry = new
+                {
+                    type = "Point",
+                    coordinates = new[] { point.Longitude, point.Latitude }
+                },
+                properties = new
+                {
+                    point.Ocid,
+                    point.Title,
+                    point.ObjectType,
+                    point.Address,
+                    point.District,
+                    point.CoordinatesStatus,
+                    point.AreaSqm,
+                    point.StatusCode,
+                    point.StatusLabel,
+                    point.ListType,
+                    point.CurrentContractValue,
+                    point.RiskScore,
+                    point.RiskFlags
+                }
+            })
+        });
+    }
+
     [HttpGet("analytics")]
     [AllowAnonymous]
     public async Task<IActionResult> GetAnalytics(CancellationToken ct = default)

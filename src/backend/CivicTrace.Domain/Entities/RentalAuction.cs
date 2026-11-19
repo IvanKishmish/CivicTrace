@@ -105,4 +105,31 @@ public sealed class RentalAuction : Entity
     {
         RentalObjectId = rentalObjectId;
     }
+
+    public void RefreshFrom(RentalAuction snapshot)
+    {
+        ApiId = snapshot.ApiId;
+        RentalObjectId = snapshot.RentalObjectId ?? RentalObjectId;
+        RegistryObjectOcid = snapshot.RegistryObjectOcid ?? RegistryObjectOcid;
+        Title = snapshot.Title;
+        SellingMethod = snapshot.SellingMethod;
+        Status = snapshot.Status;
+        StatusLabel = snapshot.StatusLabel;
+        TenderAttempts = snapshot.TenderAttempts;
+        StartPrice = snapshot.StartPrice;
+        FinalPrice = snapshot.FinalPrice;
+        MinimalStep = snapshot.MinimalStep;
+        AreaSqm = snapshot.AreaSqm;
+        PricePerSqmStart = snapshot.PricePerSqmStart;
+        PricePerSqmFinal = snapshot.PricePerSqmFinal;
+        BidsCount = snapshot.BidsCount;
+        HasSingleBidder = snapshot.HasSingleBidder;
+        PriceIncreasePct = snapshot.PriceIncreasePct;
+        WinnerKeyMasked = snapshot.WinnerKeyMasked;
+        DatePublished = snapshot.DatePublished;
+        AuctionDate = snapshot.AuctionDate;
+        DateCompleted = snapshot.DateCompleted;
+        ContractDateSigned = snapshot.ContractDateSigned;
+        SourceUrl = snapshot.SourceUrl;
+    }
 }

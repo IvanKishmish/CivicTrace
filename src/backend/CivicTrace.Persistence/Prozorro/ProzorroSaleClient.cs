@@ -35,7 +35,7 @@ public sealed class ProzorroSaleClient(HttpClient httpClient, ILogger<ProzorroSa
     {
         try
         {
-            using var response = await httpClient.GetAsync(path, ct);
+            using var response = await ProzorroHttpRetry.GetAsync(httpClient, path, ct);
 
             if (response.StatusCode == HttpStatusCode.TooManyRequests)
                 return Error.Failure("ProzorroSale.RateLimited", "Prozorro.Sale API rate limit reached.");
