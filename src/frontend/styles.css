@@ -166,3 +166,6 @@ body, .panel, .site-header, .nav-link, .mock-banner, input, select {
 [data-theme="dark"] .map-popup-item [style*="color:"] { color: var(--muted) !important; }
 [data-theme="dark"] .offline-map-popup { background: var(--white); color: var(--ink); }
 @media (max-width: 680px) { .hero { padding: 24px 16px; } .site-nav { width: 100%; } .nav-link { padding: 9px; } }
+
+.page-intro { padding-top: 24px; }
+@media (max-width: 680px) { .page-intro { padding-top: 16px; } }
