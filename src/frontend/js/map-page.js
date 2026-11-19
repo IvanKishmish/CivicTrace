@@ -56,6 +56,7 @@ async function init({ automatic = false } = {}) {
     retryCount = 0;
     clearTimeout(retryTimer);
   }
+  clearTimeout(retryTimer);
   refreshBtn.disabled = true;
   if (!automatic) statsEl.textContent = 'Оновлюємо стан карти…';
 
@@ -76,6 +77,7 @@ async function init({ automatic = false } = {}) {
     listEl.innerHTML = '<p class="muted">Перелік точок зараз недоступний.</p>';
     handle?.destroy();
     handle = null;
+    mapContainer.innerHTML = '<div class="empty-state"><h3>Карта недоступна</h3><p>Натисніть «Оновити дані карти», щоб повторити запит.</p></div>';
     if (retryCount < retryLimit) {
       retryCount += 1;
       retryTimer = setTimeout(() => init({ automatic: true }), 15000);

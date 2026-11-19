@@ -1,4 +1,4 @@
-import { createServer } from 'node:http';
+import { createServer, request } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,6 +19,20 @@ const MIME = {
 createServer(async (req, res) => {
   try {
     const reqUrl = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+    if (reqUrl.pathname.startsWith('/api/')) {
+      const target = new URL(reqUrl.pathname + reqUrl.search, process.env.API_PROXY_TARGET || 'http://127.0.0.1:8080');
+      const upstream = request(target, { method: req.method, headers: { ...req.headers, host: target.host } }, (response) => {
+        res.writeHead(response.statusCode, response.headers);
+        response.pipe(res);
+      });
+      upstream.setTimeout(30000, () => upstream.destroy(new Error('API timeout')));
+      upstream.on('error', () => {
+        if (!res.headersSent) res.writeHead(502, { 'Content-Type': 'application/problem+json' });
+        res.end(JSON.stringify({ detail: 'API недоступний. Перевірте запуск Docker і повторіть запит.' }));
+      });
+      req.pipe(upstream);
+      return;
+    }
     let pathname = decodeURIComponent(reqUrl.pathname);
     if (pathname === '/') pathname = '/index.html';
 

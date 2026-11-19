@@ -96,6 +96,7 @@ async function load() {
 
         <section class="panel">
           <h2>Ознаки ризику (підстава для перевірки)</h2>
+          <p class="small-note">Сигнал ризику є підставою для перевірки й сам по собі не доводить порушення.</p>
           ${risksHtml}
         </section>
       </div>
@@ -122,4 +123,12 @@ async function load() {
   renderMapWidget(document.getElementById('detail-map'), r.hasCoordinates ? [r] : [], { zoom: 16, openSinglePopup: true });
 }
 
-load();
+async function refresh() {
+  detailEl.setAttribute('aria-busy', 'true');
+  try { await load(); }
+  catch (error) {
+    detailEl.innerHTML = `<section class="panel empty-state"><h2>Не вдалося завантажити об’єкт</h2><p>${escapeHtml(error.message)}</p><button type="button" class="button" id="retry-detail">Спробувати ще раз</button></section>`;
+    document.getElementById('retry-detail').addEventListener('click', refresh);
+  } finally { detailEl.setAttribute('aria-busy', 'false'); }
+}
+refresh();

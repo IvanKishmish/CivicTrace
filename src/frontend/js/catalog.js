@@ -130,7 +130,9 @@ async function refresh() {
     renderCards(data.items);
     renderPagination(data);
   } catch (err) {
-    resultsEl.innerHTML = `<div class="panel empty-state"><p>${escapeHtml(err.message)}</p></div>`;
+    countEl.textContent = 'Каталог тимчасово недоступний';
+    resultsEl.innerHTML = `<div class="panel empty-state"><p>${escapeHtml(err.message)}</p><button id="retry-catalog" type="button" class="button">Спробувати ще раз</button></div>`;
+    document.getElementById('retry-catalog').addEventListener('click', refresh);
   } finally {
     resultsEl.setAttribute('aria-busy', 'false');
   }

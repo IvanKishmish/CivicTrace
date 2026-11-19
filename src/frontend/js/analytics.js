@@ -80,4 +80,13 @@ async function load() {
 
 document.getElementById('export-csv')?.addEventListener('click', () => { location.href = exportRentalsUrl('csv'); });
 document.getElementById('export-json')?.addEventListener('click', () => { location.href = exportRentalsUrl('json'); });
-load();
+async function refresh() {
+  bannerEl.textContent = 'Оновлюємо аналітику…';
+  try { await load(); }
+  catch (error) {
+    bannerEl.textContent = 'Аналітика тимчасово недоступна.';
+    summaryEl.innerHTML = `<div class="panel empty-state"><p>${escapeHtml(error.message)}</p><button id="retry-analytics" type="button" class="button">Спробувати ще раз</button></div>`;
+    document.getElementById('retry-analytics').addEventListener('click', refresh);
+  }
+}
+refresh();

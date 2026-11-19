@@ -5,7 +5,7 @@ import { coordStatusText, formatArea, formatMoney } from './format.js';
 export function groupPointsByCoords(points) {
   const map = new Map();
   for (const pt of points) {
-    if (pt.latitude === null || pt.longitude === null) continue;
+    if (!Number.isFinite(pt.latitude) || !Number.isFinite(pt.longitude) || Math.abs(pt.latitude) > 90 || Math.abs(pt.longitude) > 180) continue;
     const key = `${Number(pt.latitude).toFixed(5)},${Number(pt.longitude).toFixed(5)}`;
     if (!map.has(key)) map.set(key, { key, latitude: Number(pt.latitude), longitude: Number(pt.longitude), items: [] });
     map.get(key).items.push(pt);
@@ -32,7 +32,7 @@ function popupHtml(item, shared = false) {
       <div>${escapeHtml(item.address || 'Адресу не вказано')}</div>
       ${Number.isFinite(Number(item.latitude)) && Number.isFinite(Number(item.longitude)) ? `<div><a href="https://www.google.com/maps/search/?api=1&amp;query=${encodeURIComponent(`${item.latitude},${item.longitude}`)}" target="_blank" rel="noopener noreferrer">Відкрити місце в Google Maps ↗</a></div>` : ''}
       ${item.currentContractValue != null ? `<div>Договір: <strong>${escapeHtml(formatMoney(item.currentContractValue))}</strong></div>` : ''}
-      ${item.riskScore > 0 ? `<div style="margin-top:6px;"><span class="badge badge-risk">Сигнали ризику: ${item.riskFlags.length} · бал ${item.riskScore}</span><ul class="clean-list">${item.riskFlags.map((f) => `<li>${escapeHtml(f.title)} — ${escapeHtml(f.reason)}</li>`).join('')}</ul><div class="small-note">Сигнал підказує, що перевірити, і сам по собі не свідчить про порушення.</div></div>` : ''}
+      ${item.riskScore > 0 ? `<div style="margin-top:6px;"><span class="badge badge-risk">Сигнали ризику: ${item.riskFlags.length} · бал ${item.riskScore}</span><ul class="clean-list">${item.riskFlags.map((f) => `<li>${escapeHtml(f.title)} — ${escapeHtml(f.reason)}${f.legitimateExplanation ? `<br>Можливе легітимне пояснення: ${escapeHtml(f.legitimateExplanation)}` : ""}</li>`).join('')}</ul><div class="small-note">Сигнал підказує, що перевірити, і сам по собі не свідчить про порушення.</div></div>` : ''}
       <div style="font-size:11px;color:#56665f;margin-top:3px;">
         ${escapeHtml(coordStatusText(item.coordinatesStatus, true))}${shared ? ' · рознесено для зручності вибору' : ''}
       </div>
@@ -45,7 +45,7 @@ export function renderMapWidget(container, points, options = {}) {
   container.innerHTML = '';
   const groups = groupPointsByCoords(points);
   if (groups.length === 0) {
-    container.innerHTML = '<div class="empty-state"><h3>Координати ще завантажуються</h3><p>Список об’єктів доступний нижче. Після синхронізації даних оновіть карту.</p></div>';
+    container.innerHTML = '<div class="empty-state"><h3>Немає об’єктів із координатами</h3><p>Змініть фільтри або оновіть дані карти. Об’єкти без координат доступні в каталозі.</p></div>';
     return null;
   }
 
@@ -119,7 +119,7 @@ function renderOfflineSvg(container, groups) {
 
   const pins = groups.map((g, idx) => {
     const [x, y] = project(g.latitude, g.longitude);
-    const fill = pinColor(g.items[0].statusCode, g.items[0].riskScore);
+    const fill = pinColor(g.items[0].statusCode, g.items.some((item) => item.riskScore > 0) ? 1 : 0);
     return `<g class="svg-pin" data-idx="${idx}" tabindex="0" role="button" style="cursor:pointer;">
       <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${g.items.length > 1 ? 14 : 9}" fill="${fill}" stroke="#fff" stroke-width="2"></circle>
       ${g.items.length > 1 ? `<text x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">${g.items.length}</text>` : ''}
@@ -139,6 +139,9 @@ function renderOfflineSvg(container, groups) {
 
   const popup = wrap.querySelector('.offline-map-popup');
   wrap.querySelectorAll('.svg-pin').forEach((pin) => {
+    pin.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); pin.click(); }
+    });
     pin.addEventListener('click', () => {
       const g = groups[Number(pin.getAttribute('data-idx'))];
       popup.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:6px;"><strong>Точка</strong><button type="button" class="button button-secondary button-sm" data-close>✕</button></div>${g.items.slice(0, 10).map((i) => popupHtml(i)).join('')}`;
@@ -148,5 +151,8 @@ function renderOfflineSvg(container, groups) {
   });
 
   container.append(wrap);
-  return { focusObject() {}, destroy() { container.innerHTML = ''; } };
+  return { focusObject(ocid) {
+    const index = groups.findIndex((group) => group.items.some((item) => item.ocid === ocid));
+    wrap.querySelector(`[data-idx="${index}"]`)?.dispatchEvent(new MouseEvent('click'));
+  }, destroy() { container.innerHTML = ''; } };
 }

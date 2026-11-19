@@ -2,7 +2,7 @@ export function renderNav(activeKey) {
   const nav = document.getElementById('site-nav');
   if (!nav) return;
   const links = [
-    { key: 'catalog', href: './index.html', label: 'Каталог (553)' },
+    { key: 'catalog', href: './index.html', label: 'Каталог' },
     { key: 'map', href: './map.html', label: 'Мапа об’єктів' },
     { key: 'analytics', href: './analytics.html', label: 'Аналітика і ризики' },
     { key: 'about', href: './about.html', label: 'Методика і дефекти' },
