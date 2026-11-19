@@ -70,7 +70,7 @@ public sealed class ProzorroClient(HttpClient httpClient, ILogger<ProzorroClient
 
         try
         {
-            response = await httpClient.GetAsync(path, ct);
+            response = await ProzorroHttpRetry.GetAsync(httpClient, path, ct);
         }
         catch (HttpRequestException ex)
         {

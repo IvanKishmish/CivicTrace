@@ -17,9 +17,15 @@ public static class ProzorroServiceCollectionExtensions
         services.AddHttpClient<IProzorroClient, ProzorroClient>(client =>
         {
             var baseUrl = options.BaseUrl.EndsWith('/') ? options.BaseUrl : options.BaseUrl + "/";
-
             client.BaseAddress = new Uri(baseUrl);
             client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("CivicTrace-hackathon/1.0");
+        });
+
+        services.AddHttpClient<IProzorroSaleClient, ProzorroSaleClient>(client =>
+        {
+            client.BaseAddress = new Uri("https://procedure.prozorro.sale/api/");
+            client.Timeout = TimeSpan.FromSeconds(20);
             client.DefaultRequestHeaders.UserAgent.ParseAdd("CivicTrace-hackathon/1.0");
         });
 
@@ -31,6 +37,7 @@ public static class ProzorroServiceCollectionExtensions
         });
 
         services.AddHostedService<ProzorroSyncHostedService>();
+        services.AddHostedService<RentalSyncHostedService>();
 
         return services;
     }

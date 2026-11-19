@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Картка об’єкта оренди — CivicTrace</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script type="module" src="./js/rental-detail.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">До вмісту</a>
+  <header class="site-header container">
+    <a class="brand" href="./index.html">Civic<span>Trace</span><span class="brand-dot" aria-hidden="true">↗</span></a>
+    <nav id="site-nav" class="site-nav" aria-label="Основна навігація"></nav>
+  </header>
+  <div class="mock-banner"><div class="container banner-row" id="detail-mode" aria-live="polite">Завантажуємо…</div></div>
+  <main id="main" class="container">
+    <a class="back-link" href="./index.html">← До каталогу об’єктів</a>
+    <div id="detail" aria-live="polite" aria-busy="true"><section class="panel" style="padding:22px;">Завантажуємо картку…</section></div>
+  </main>
+  <footer class="container site-footer">
+    <span class="brand">CivicTrace</span>
+    <span>Ознаки ризику є підставою для перевірки, а не вироком. · <a href="./import.html" class="muted">Адміністрування</a></span>
+  </footer>
+</body>
+</html>

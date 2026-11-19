@@ -1,118 +1,92 @@
-import { fetchMapData, getSourceInfo } from './api.js';
-import { formatMoneyWithVatHtml, placeTypeLabel } from './format.js';
+import { fetchRentalMap } from './api.js';
+import { formatArea } from './format.js';
 import { renderMapWidget } from './map-widget.js';
-import { escapeHtml, renderNav, renderSourceBanner } from './nav.js';
+import { escapeHtml, renderLastUpdatedBanner, renderNav } from './nav.js';
 
 renderNav('map');
 
 const bannerEl = document.getElementById('map-mode');
 const mapContainer = document.getElementById('full-map');
-const mappedListEl = document.getElementById('mapped-list');
-const unmappedListEl = document.getElementById('unmapped-list');
-const placeFilterEl = document.getElementById('map-place-filter');
-const statusFilterEl = document.getElementById('map-status-filter');
-const mapStatsEl = document.getElementById('map-stats');
+const statsEl = document.getElementById('map-stats');
+const listEl = document.getElementById('mapped-list');
+const statusFilter = document.getElementById('map-status-filter');
+const minAreaFilter = document.getElementById('map-min-area');
+const refreshBtn = document.getElementById('refresh-map');
+const riskOnlyFilter = document.getElementById('map-risk-only');
 
 let allPoints = [];
-let unmappedItems = [];
-let mapHandle = null;
+let mapMeta = null;
+let handle = null;
+let retryTimer = null;
+let retryCount = 0;
+const retryLimit = 8;
 
-function applyMapFilters() {
-  const place = placeFilterEl.value;
-  const status = statusFilterEl.value;
+function apply() {
+  if (!mapMeta) return;
+  const st = statusFilter.value;
+  const minA = Number(minAreaFilter.value) || 0;
+  const riskOnly = riskOnlyFilter.checked;
+  const filtered = allPoints.filter((p) => (!st || p.statusCode === st) && (!minA || (p.areaSqm ?? 0) >= minA) && (!riskOnly || p.riskScore > 0));
 
-  const filtered = allPoints.filter((pt) => {
-    if (place && pt.placeType !== place) return false;
-    if (status && pt.status !== status) return false;
-    return true;
+  statsEl.innerHTML = `
+    Усього в P3-01: <strong>${mapMeta.totalObjects}</strong> ·
+    На мапі зараз: <strong>${filtered.length}</strong> (із ${mapMeta.mappedCount} геокодованих; із сигналами: ${allPoints.filter((p) => p.riskScore > 0).length}) ·
+    Негеокодованих: <strong>${mapMeta.ungeocodedPercent}%</strong> (з адресою без GPS: ${mapMeta.unmappedWithAddressCount}, без адреси/збагачення: ${mapMeta.unmappedWithoutAddressCount})
+  `;
+
+  if (handle) handle.destroy();
+  handle = renderMapWidget(mapContainer, filtered, { scrollWheelZoom: true });
+
+  listEl.innerHTML = filtered.slice(0, 40).map((p) => `
+    <div class="panel" style="padding:12px;margin-bottom:8px;">
+      <strong><a href="./rental.html?id=${encodeURIComponent(p.ocid)}">${escapeHtml(p.title)}</a></strong>
+      <div class="small-note">${escapeHtml(p.statusLabel)} · ${escapeHtml(formatArea(p.areaSqm))} · ${escapeHtml(p.address || '')}</div>
+      ${p.riskScore > 0 ? `<div style="margin-top:6px;"><span class="badge badge-risk">${p.riskFlags.length} сигналів · бал ${p.riskScore}</span></div>` : ''}
+      <button type="button" class="button button-secondary button-sm" data-focus="${escapeHtml(p.ocid)}" style="margin-top:6px;">Показати на мапі</button>
+    </div>
+  `).join('') || '<p class="muted">Немає точок за вибраним фільтром.</p>';
+
+  listEl.querySelectorAll('[data-focus]').forEach((b) => {
+    b.addEventListener('click', () => handle?.focusObject(b.getAttribute('data-focus')));
   });
+}
 
-  mapStatsEl.textContent = `Показано на мапі: ${filtered.length} із ${allPoints.length} точок із координатами · Без координат: ${unmappedItems.length}`;
+async function init({ automatic = false } = {}) {
+  if (!automatic) {
+    retryCount = 0;
+    clearTimeout(retryTimer);
+  }
+  refreshBtn.disabled = true;
+  if (!automatic) statsEl.textContent = 'Оновлюємо стан карти…';
 
-  if (mapHandle) mapHandle.destroy();
-  mapHandle = renderMapWidget(mapContainer, filtered, { scrollWheelZoom: true });
+  try {
+    mapMeta = await fetchRentalMap();
+    allPoints = mapMeta.points;
+    renderLastUpdatedBanner(bannerEl, null, `Негеокодованих об’єктів: ${mapMeta.ungeocodedPercent}%`);
+    apply();
 
-  if (!filtered.length) {
-    mappedListEl.innerHTML =
-      '<p class="muted">За вибраними фільтрами немає точок із координатами.</p>';
-  } else {
-    mappedListEl.innerHTML = filtered
-      .map((pt) => {
-        const amount =
-          pt.contractAmount != null
-            ? formatMoneyWithVatHtml(pt.contractAmount, pt.contractVatIncluded, pt.currency)
-            : formatMoneyWithVatHtml(pt.expectedAmount, pt.expectedVatIncluded, pt.currency);
-
-        return `
-          <div class="panel" style="padding:14px;margin-bottom:10px;">
-            <div style="display:flex;justify-content:space-between;gap:8px;align-items:start;">
-              <strong style="font-size:13px;">${escapeHtml(pt.title)}</strong>
-              <span class="badge badge-warn">${escapeHtml(placeTypeLabel(pt.placeType))}</span>
-            </div>
-            <div class="small-note" style="margin:6px 0;">
-              ${escapeHtml(pt.address || 'Адресу не вказано')} · <code>${escapeHtml(pt.id)}</code>
-            </div>
-            <div style="margin-bottom:8px;">${amount}</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button type="button" class="button button-secondary button-sm" data-focus-id="${escapeHtml(
-                pt.id
-              )}">Показати на мапі</button>
-              <a class="button button-sm" href="./procurement.html?id=${encodeURIComponent(
-                pt.id
-              )}">Картка →</a>
-            </div>
-          </div>
-        `;
-      })
-      .join('');
-
-    mappedListEl.querySelectorAll('[data-focus-id]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        mapHandle?.focusProcurement(btn.getAttribute('data-focus-id'));
-      });
-    });
+    if (mapMeta.totalObjects > 0 && mapMeta.mappedCount === 0 && retryCount < retryLimit) {
+      retryCount += 1;
+      retryTimer = setTimeout(() => init({ automatic: true }), 15000);
+    }
+  } catch (err) {
+    mapMeta = null;
+    allPoints = [];
+    statsEl.textContent = `Не вдалося завантажити карту: ${err.message}. Перевірте API або натисніть «Оновити дані карти».`;
+    listEl.innerHTML = '<p class="muted">Перелік точок зараз недоступний.</p>';
+    handle?.destroy();
+    handle = null;
+    if (retryCount < retryLimit) {
+      retryCount += 1;
+      retryTimer = setTimeout(() => init({ automatic: true }), 15000);
+    }
+  } finally {
+    refreshBtn.disabled = false;
   }
 }
 
-function renderUnmapped() {
-  if (!unmappedItems.length) {
-    unmappedListEl.innerHTML = '<p class="muted">Усі закупівлі мають координати.</p>';
-    return;
-  }
-
-  unmappedListEl.innerHTML = unmappedItems
-    .map(
-      (p) => `
-      <div class="panel" style="padding:14px;margin-bottom:10px;">
-        <div style="display:flex;justify-content:space-between;gap:8px;align-items:start;">
-          <a href="./procurement.html?id=${encodeURIComponent(p.id)}"><strong>${escapeHtml(
-            p.title
-          )}</strong></a>
-          <span class="badge badge-neutral">${escapeHtml(p.statusLabel)}</span>
-        </div>
-        <div class="small-note" style="margin-top:4px;">
-          <code>${escapeHtml(p.id)}</code> · ${
-            p.address
-              ? `Адреса «${escapeHtml(p.address)}» ще не геокодована`
-              : 'Адресу поставки/робіт у джерелі не вказано'
-          }
-        </div>
-      </div>
-    `
-    )
-    .join('');
-}
-
-async function init() {
-  const data = await fetchMapData();
-  renderSourceBanner(bannerEl, getSourceInfo());
-  allPoints = data.points;
-  unmappedItems = data.unmapped;
-  applyMapFilters();
-  renderUnmapped();
-}
-
-placeFilterEl.addEventListener('change', applyMapFilters);
-statusFilterEl.addEventListener('change', applyMapFilters);
-
+refreshBtn.addEventListener('click', () => init());
+statusFilter.addEventListener('change', apply);
+minAreaFilter.addEventListener('input', apply);
+riskOnlyFilter.addEventListener('change', apply);
 init();

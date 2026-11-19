@@ -19,8 +19,6 @@ using Serilog.Sinks.SystemConsole.Themes;
 
 Env.TraversePath().Load();
 
-// У Docker головне — консоль (docker logs). Файли писати необов'язково: щоб вони не зникали разом з контейнером,
-// змонтуйте том на теку з LOG_DIRECTORY.
 var logDirectory = Environment.GetEnvironmentVariable("LOG_DIRECTORY") ?? "logs";
 
 Log.Logger = new LoggerConfiguration()
@@ -41,7 +39,6 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    // Без цього рядка повідомлення ILogger<T> (зокрема з LoggingBehaviour) не потрапляють у Serilog
     builder.Host.UseSerilog();
 
     builder.Services.AddApplication();
@@ -86,13 +83,10 @@ try
             {
                 ValidateIssuer = true,
                 ValidIssuer = jwtOptions.Issuer,
-
                 ValidateAudience = true,
                 ValidAudience = jwtOptions.Audience,
-
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret)),
-
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
             };
@@ -124,10 +118,6 @@ try
             });
         });
     }
-    else
-    {
-        Log.Warning("CORS_ALLOWED_ORIGINS is not set: cross-origin browser requests will be blocked.");
-    }
 
     var app = builder.Build();
 
@@ -149,6 +139,9 @@ try
             importResult.Replaced);
     }
 
+    var rentalSeedAdded = await app.Services.SeedRentalsAsync(app.Configuration, app.Environment.ContentRootPath);
+    Log.Information("Rental objects seed finished: {Added} new objects added from listProzorroSales.csv.", rentalSeedAdded);
+
     await app.Services.SeedIdentityAsync();
 
     app.UseExceptionHandler();
@@ -164,7 +157,6 @@ try
     if (!app.Environment.IsDevelopment())
         app.UseHttpsRedirection();
 
-    // Необов'язково: API віддає статичний фронтенд із вказаної теки (відносно ContentRoot)
     var frontendRoot = app.Configuration["Frontend:RootPath"];
 
     if (!string.IsNullOrWhiteSpace(frontendRoot))
@@ -180,10 +172,6 @@ try
 
             Log.Information("Serving frontend from {FrontendPath}", fullPath);
         }
-        else
-        {
-            Log.Warning("Frontend:RootPath '{FrontendPath}' does not exist, static files are not served.", fullPath);
-        }
     }
 
     if (corsEnabled)
@@ -191,9 +179,7 @@ try
 
     app.UseAuthentication();
     app.UseAuthorization();
-
     app.UseRateLimiter();
-
     app.MapControllers();
 
     Log.Information("Starting CivicTrace.WebApi");
