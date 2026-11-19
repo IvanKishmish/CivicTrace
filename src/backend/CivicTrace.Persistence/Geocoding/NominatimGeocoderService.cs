@@ -17,21 +17,31 @@ public sealed partial class NominatimGeocoderService(
 
     public async Task<(double Latitude, double Longitude)?> GeocodePoltavaAsync(string address, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(address)) return null;
+        if (string.IsNullOrWhiteSpace(address))
+            return null;
+
         var normalized = NormalizeForSearch(address);
-        if (string.IsNullOrWhiteSpace(normalized)) return null;
-        if (Cache.TryGetValue(normalized, out var cached)) return cached;
+        if (string.IsNullOrWhiteSpace(normalized))
+            return null;
+
+        if (Cache.TryGetValue(normalized, out var cached))
+            return cached;
 
         await RateLock.WaitAsync(ct);
         try
         {
-            if (Cache.TryGetValue(normalized, out cached)) return cached;
+            if (Cache.TryGetValue(normalized, out cached))
+                return cached;
+
             var elapsed = DateTimeOffset.UtcNow - _lastRequestAt;
             if (elapsed < TimeSpan.FromMilliseconds(1100))
                 await Task.Delay(TimeSpan.FromMilliseconds(1100) - elapsed, ct);
+
             _lastRequestAt = DateTimeOffset.UtcNow;
 
-            var url = $"search?format=json&limit=1&countrycodes=ua&viewbox=34.43,49.66,34.68,49.51&bounded=1&q={Uri.EscapeDataString(normalized)}";
+            var url =
+                $"search?format=json&limit=1&countrycodes=ua&viewbox=34.43,49.66,34.68,49.51&bounded=1&q={Uri.EscapeDataString(normalized)}";
+
             var hits = await httpClient.GetFromJsonAsync<List<NominatimHit>>(url, ct);
             var hit = hits?.FirstOrDefault();
 

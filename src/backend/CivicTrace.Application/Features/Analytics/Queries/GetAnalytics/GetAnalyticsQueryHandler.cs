@@ -93,10 +93,6 @@ public sealed class GetAnalyticsQueryHandler(
             .ThenBy(g => g.Key, StringComparer.Ordinal)
             .ToList();
 
-    /// <summary>
-    /// Закупівля потрапляє в групу один раз, навіть якщо в ній кілька рядків фінансування з тим самим ключем.
-    /// FundingAmount — сума фінансування за ключем.
-    /// </summary>
     private static List<AnalyticsGroup> BuildFundingGroups(string groupBy, IReadOnlyList<Row> rows)
     {
         var items = new List<(string Key, string Label, Row Row, decimal Amount)>();
@@ -149,6 +145,7 @@ public sealed class GetAnalyticsQueryHandler(
         ProcurementMethod.NoElectronicSystem => ("no_electronic_system", ProcurementMapper.MethodLabel(method)),
         ProcurementMethod.RequestForQuotations => ("request_for_quotations", ProcurementMapper.MethodLabel(method)),
         ProcurementMethod.OpenTendersWithSpecifics => ("open_tenders_with_specifics", ProcurementMapper.MethodLabel(method)),
+        ProcurementMethod.Other => ("other", ProcurementMapper.MethodLabel(method)),
         _ => throw new ArgumentOutOfRangeException(nameof(method), method, null)
     };
 
@@ -162,6 +159,8 @@ public sealed class GetAnalyticsQueryHandler(
             ProcurementsCount: rows.Count,
             ContractSignedCount: rows.Count(r => r.Status == ProcurementStatus.ContractSigned),
             NotHeldCount: rows.Count(r => r.Status == ProcurementStatus.NotHeld),
+            ActiveCount: rows.Count(r => r.Status == ProcurementStatus.Active),
+            CancelledCount: rows.Count(r => r.Status == ProcurementStatus.Cancelled),
             NoElectronicSystemCount: rows.Count(r => r.Method == ProcurementMethod.NoElectronicSystem),
             BidsListCompleteCount: completeLists.Count,
             AverageBidsInCompleteLists: completeLists.Count == 0 ? null : completeLists.Average(r => r.BidCount),

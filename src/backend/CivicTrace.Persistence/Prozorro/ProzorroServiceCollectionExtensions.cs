@@ -36,6 +36,7 @@ public static class ProzorroServiceCollectionExtensions
             client.DefaultRequestHeaders.UserAgent.ParseAdd("CivicTrace-hackathon/1.0");
         });
 
+        services.AddHostedService<ProzorroSyncHostedService>();
         services.AddHostedService<RentalSyncHostedService>();
 
         return services;

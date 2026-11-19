@@ -94,6 +94,8 @@ try
 
     builder.Services.AddAuthorization();
 
+    // CORS потрібен лише якщо фронтенд відкривається з іншого походження (наприклад, serve.mjs на :4173).
+    // Якщо фронтенд віддає сам API (Frontend:RootPath), CORS не потрібен.
     var corsOriginString = builder.Configuration["CORS_ALLOWED_ORIGINS"];
     var allowedOrigins = !string.IsNullOrWhiteSpace(corsOriginString)
         ? corsOriginString.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)

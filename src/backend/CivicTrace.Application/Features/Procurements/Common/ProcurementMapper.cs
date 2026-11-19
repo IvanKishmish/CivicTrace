@@ -3,19 +3,11 @@ using CivicTrace.Domain.Enums;
 
 namespace CivicTrace.Application.Features.Procurements.Common;
 
-/// <summary>
-/// Перетворює доменні сутності на відповіді API й назад розбирає коди фільтрів.
-/// Усі «людські» підписи (kind, procurementType, statusLabel) збігаються з сид-файлом.
-/// </summary>
 public static class ProcurementMapper
 {
     public static ProcurementResponse ToResponse(Procurement p, string? verifiedBy)
         => ToResponse(p, verifiedBy, p.Buyer, p.Contractor, b => b.Bidder);
 
-    /// <summary>
-    /// Той самий результат, але організації передаються явно: потрібно, коли закупівля ще не збережена
-    /// й навігаційні властивості порожні (імпорт з Prozorro, режим dry run).
-    /// </summary>
     public static ProcurementResponse ToResponse(
         Procurement p,
         string? verifiedBy,
@@ -92,8 +84,6 @@ public static class ProcurementMapper
             VerifiedBy: verifiedBy);
     }
 
-    // ---------- enum -> відповідь
-
     public static string KindLabel(ProcurementKind kind) => kind switch
     {
         ProcurementKind.Goods => "Товари",
@@ -107,20 +97,25 @@ public static class ProcurementMapper
         ProcurementMethod.NoElectronicSystem => "Закупівля без використання електронної системи",
         ProcurementMethod.RequestForQuotations => "Запит (ціни) пропозицій",
         ProcurementMethod.OpenTendersWithSpecifics => "Відкриті торги з особливостями",
+        ProcurementMethod.Other => "Інша процедура",
         _ => throw new ArgumentOutOfRangeException(nameof(method), method, null)
     };
 
     public static string StatusCode(ProcurementStatus status) => status switch
     {
+        ProcurementStatus.Active => "active",
         ProcurementStatus.ContractSigned => "contract_signed",
         ProcurementStatus.NotHeld => "not_held",
+        ProcurementStatus.Cancelled => "cancelled",
         _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
     };
 
     public static string StatusLabel(ProcurementStatus status) => status switch
     {
+        ProcurementStatus.Active => "Триває процедура",
         ProcurementStatus.ContractSigned => "Договір укладено",
         ProcurementStatus.NotHeld => "Торги не відбулися",
+        ProcurementStatus.Cancelled => "Відмінена",
         _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
     };
 
@@ -168,16 +163,16 @@ public static class ProcurementMapper
         _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, null)
     };
 
-    // ---------- коди фільтрів -> enum (для параметрів запитів)
-
-    public static readonly string[] StatusCodes = ["contract_signed", "not_held"];
+    public static readonly string[] StatusCodes = ["active", "contract_signed", "not_held", "cancelled"];
     public static readonly string[] KindCodes = ["goods", "services", "works"];
-    public static readonly string[] MethodCodes = ["no_electronic_system", "request_for_quotations", "open_tenders_with_specifics"];
+    public static readonly string[] MethodCodes = ["no_electronic_system", "request_for_quotations", "open_tenders_with_specifics", "other"];
 
     public static ProcurementStatus? ParseStatus(string? code) => code switch
     {
+        "active" => ProcurementStatus.Active,
         "contract_signed" => ProcurementStatus.ContractSigned,
         "not_held" => ProcurementStatus.NotHeld,
+        "cancelled" => ProcurementStatus.Cancelled,
         _ => null
     };
 
@@ -194,6 +189,7 @@ public static class ProcurementMapper
         "no_electronic_system" => ProcurementMethod.NoElectronicSystem,
         "request_for_quotations" => ProcurementMethod.RequestForQuotations,
         "open_tenders_with_specifics" => ProcurementMethod.OpenTendersWithSpecifics,
+        "other" => ProcurementMethod.Other,
         _ => null
     };
 }
