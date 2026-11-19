@@ -1,5 +1,6 @@
 using CivicTrace.Application.Common.Interfaces;
 using CivicTrace.Application.Common.Options;
+using CivicTrace.Persistence.Geocoding;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,11 +17,26 @@ public static class ProzorroServiceCollectionExtensions
         services.AddHttpClient<IProzorroClient, ProzorroClient>(client =>
         {
             var baseUrl = options.BaseUrl.EndsWith('/') ? options.BaseUrl : options.BaseUrl + "/";
-
             client.BaseAddress = new Uri(baseUrl);
             client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
             client.DefaultRequestHeaders.UserAgent.ParseAdd("CivicTrace-hackathon/1.0");
         });
+
+        services.AddHttpClient<IProzorroSaleClient, ProzorroSaleClient>(client =>
+        {
+            client.BaseAddress = new Uri("https://procedure.prozorro.sale/api/");
+            client.Timeout = TimeSpan.FromSeconds(20);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("CivicTrace-hackathon/1.0");
+        });
+
+        services.AddHttpClient<IGeocoderService, NominatimGeocoderService>(client =>
+        {
+            client.BaseAddress = new Uri("https://nominatim.openstreetmap.org/");
+            client.Timeout = TimeSpan.FromSeconds(10);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("CivicTrace-hackathon/1.0");
+        });
+
+        services.AddHostedService<RentalSyncHostedService>();
 
         return services;
     }

@@ -10,10 +10,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Procurement> Procurements => Set<Procurement>();
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+    public DbSet<RentalObject> RentalObjects => Set<RentalObject>();
+    public DbSet<RentalAuction> RentalAuctions => Set<RentalAuction>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Застосовуємо лише конфігурації з EntityTypeConfigurations: конфігурація RefreshToken належить Identity-контексту.
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(AppDbContext).Assembly,
             type => type.Namespace == typeof(ProcurementConfiguration).Namespace);
