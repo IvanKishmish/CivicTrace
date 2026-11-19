@@ -1,54 +1,77 @@
-export const unknown = 'Не знайдено у перевірених джерелах';
+import { firstEventYear, kindCodeFromLabel, methodCodeFromLabel } from './format.js';
 
-function text(value) {
-  return typeof value === 'string' && value.trim() ? value.trim() : null;
-}
+export function normalizeProcurement(raw) {
+  const latitude = raw.latitude ?? null;
+  const longitude = raw.longitude ?? null;
+  const hasCoordinates = Boolean(raw.hasCoordinates ?? (latitude !== null && longitude !== null));
 
-function amount(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
-
-function source(value) {
-  try {
-    const url = new URL(value);
-    if (['http:', 'https:'].includes(url.protocol)) return url.href;
-  } catch {
-    return null;
-  }
-  return null;
-}
-
-const statuses = {
-  active: 'Процедура триває',
-  complete: 'Процедуру завершено',
-  completed: 'Процедуру завершено',
-  cancelled: 'Процедуру скасовано',
-  unsuccessful: 'Торги не відбулися',
-  'Завершена': 'Процедуру завершено',
-};
-
-export function mapProcurement(item) {
-  const externalId = text(item?.externalId) ?? text(item?.id);
-  if (!externalId) throw new Error('Запис не має ідентифікатора');
-
-  const status = text(item.statusLabel) ?? text(item.status);
-  return {
-    externalId,
-    title: text(item.title),
-    buyer: text(typeof item.buyer === 'object' ? item.buyer?.name : item.buyer),
-    category: text(item.kind) ?? text(item.category),
-    status: Object.hasOwn(statuses, status) ? statuses[status] : status,
-    expectedAmount: amount(item.expectedAmount),
-    contractAmount: amount(item.contractAmount),
-    currency: text(item.currency),
-    sourceUrl: source(item.sourceUrl),
+  const procurement = {
+    id: raw.id,
+    apiId: raw.apiId ?? null,
+    planId: raw.planId ?? null,
+    title: raw.title ?? '',
+    kind: raw.kind ?? '',
+    kindCode: kindCodeFromLabel(raw.kind),
+    cpvCode: raw.cpvCode ?? '',
+    cpvName: raw.cpvName ?? '',
+    procurementType: raw.procurementType ?? '',
+    methodCode: methodCodeFromLabel(raw.procurementType),
+    buyer: raw.buyer ?? '',
+    buyerEdrpou: raw.buyerEdrpou ?? '',
+    buyerAddress: raw.buyerAddress ?? null,
+    contractor: raw.contractor ?? null,
+    contractorEdrpou: raw.contractorEdrpou ?? null,
+    expectedAmount: raw.expectedAmount ?? null,
+    contractAmount: raw.contractAmount ?? null,
+    currency: raw.currency ?? 'UAH',
+    expectedVatIncluded: raw.expectedVatIncluded ?? null,
+    contractVatIncluded: raw.contractVatIncluded ?? null,
+    status: raw.status ?? '',
+    statusLabel: raw.statusLabel ?? '',
+    sourceStatus: raw.sourceStatus ?? '',
+    executionStatus: raw.executionStatus ?? 'not_confirmed',
+    address: raw.address ?? null,
+    placeType: raw.placeType ?? 'unknown',
+    latitude,
+    longitude,
+    hasCoordinates,
+    coordinatesStatus: raw.coordinatesStatus ?? null,
+    periodStart: raw.periodStart ?? null,
+    periodEnd: raw.periodEnd ?? null,
+    funding: Array.isArray(raw.funding) ? raw.funding : [],
+    nonCompetitiveBasis: raw.nonCompetitiveBasis ?? null,
+    bidsListComplete: Boolean(raw.bidsListComplete),
+    bids: Array.isArray(raw.bids) ? raw.bids : [],
+    events: Array.isArray(raw.events) ? raw.events : [],
+    sourceUrl: raw.sourceUrl ?? '',
+    notes: Array.isArray(raw.notes) ? raw.notes : [],
+    missingData: Array.isArray(raw.missingData) ? raw.missingData : [],
+    needsCheck: Array.isArray(raw.needsCheck) ? raw.needsCheck : [],
+    verifiedAt: raw.verifiedAt ?? null,
+    verifiedBy: raw.verifiedBy ?? null
   };
+
+  procurement.year = firstEventYear(procurement);
+  return procurement;
 }
 
-export function formatAmount(value, currency) {
-  if (value === null) return unknown;
-  const options = /^[A-Z]{3}$/.test(currency)
-    ? { style: 'currency', currency }
-    : { maximumFractionDigits: 2 };
-  return new Intl.NumberFormat('uk-UA', options).format(value);
+export function normalizeMapPoint(raw) {
+  return {
+    id: raw.id,
+    title: raw.title ?? '',
+    address: raw.address ?? null,
+    placeType: raw.placeType ?? 'unknown',
+    latitude: Number(raw.latitude),
+    longitude: Number(raw.longitude),
+    coordinatesStatus: raw.coordinatesStatus ?? 'needs_check',
+    status: raw.status ?? null,
+    statusLabel: raw.statusLabel ?? null,
+    buyer: raw.buyer ?? null,
+    expectedAmount: raw.expectedAmount ?? null,
+    contractAmount: raw.contractAmount ?? null,
+    currency: raw.currency ?? 'UAH',
+    expectedVatIncluded: raw.expectedVatIncluded ?? null,
+    contractVatIncluded: raw.contractVatIncluded ?? null,
+    cpvCode: raw.cpvCode ?? null
+  };
 }
