@@ -1,46 +1,53 @@
-# CivicTrace
+# CivicTrace · Прозоре управління комунальним майном Полтави (Трек 3)
 
-**Public procurement, followed from plan to published evidence.**
+**Кейс:** `3.1 Карта та каталог об’єктів оренди` із модулями аналітики (`3.2`) та 5 індикаторів ризику (`3.3`, номінація EUACI «Доброчесність через дані»).
 
-CivicTrace makes selected public construction and repair procurements in Poltava easier to understand. It brings together the procurement stage, buyer, published amounts, supplier, dates, location when safely available, and links to the original sources.
+## 1. Проблема та користувачі
+Місто публікує перелік об’єктів оренди (`P3-01`, `listProzorroSales.xlsx` — **553 об’єкти**), який містить лише `ocid`, коротку неінформативну назву та URL. Через це:
+- **Підприємець / інвестор** не може відфільтрувати вільні приміщення за площею (`м²`), районом чи статусом.
+- **Посадовець / депутат** не бачить цілісної картини портфеля, незбагачених об’єктів і потенційних недоотриманих доходів.
+- **Уповноважена особа / журналіст** витрачає дні на ручну перевірку кожного лоту в Prozorro.Продажі.
 
-The project reports what its sources support. A missing field is shown as unknown; it is not treated as proof of misconduct or completion.
+## 2. Виконані вимоги (за ID з ТЗ)
 
-## Current scope
+| ID | Вимога | Статус у рішенні |
+|---|---|---|
+| `Ф3.1-01` | Імпорт усіх 553 об’єктів `P3-01` та збагачення з API Prozorro.Продажі; окремий список незбагачених | Виконано (`RentalSeedImporter` + `SyncRentalsCommand` + блок незбагачених в аналітиці й фільтрі) |
+| `Ф3.1-02` | Геокодування адрес (координати з API + Nominatim) і карта; показана частка негеокодованих | Виконано (`/map.html`, Leaflet + автономна SVG-мапа Полтави, точний % негеокодованих) |
+| `Ф3.1-03` | Фільтри: площа (`м²`), статус, тип переліку (1-й/2-й), тип об’єкта, район, рік внесення | Виконано (`GET /api/v1/rentals` + форма фільтрів на головній) |
+| `Ф3.1-04` | Картка об’єкта: `ocid`, адреса, площа, балансоутримувач, статус, посилання та аукціони | Виконано (`/rental.html?id=RGL001-...`) |
+| `Ф3.1-05` | Сортування каталогу та експорт збагаченого переліку у CSV (для публікації містом) | Виконано (`GET /api/v1/rentals/export?format=csv`) |
+| `Ф3.1-06` | Історія об’єкта: усі пов’язані аукціони та договори | Виконано |
+| `Ф3.2-01`..`05` | Статистика портфеля за статусами/типами/роками/власниками, медіанна ставка `грн/м²` та оцінка недоотриманих доходів | Виконано (`/analytics.html`) |
+| `Ф3.3-01`..`05` | 5 індикаторів ризику з формулами, порогами в JSON-конфігу, легітимними поясненнями та знеособленням ФОП | Виконано (`data/risk-rules.json`, `METHODOLOGY.md`) |
 
-The prototype will start with one verified category and a small sample of real procurements. It is not a complete register of all city works and does not determine whether a procurement is corrupt.
+## 3. Використані дані та API
+- **`data/listProzorroSales.csv`** — базовий набір міста `P3-01` (553 об’єкти оренди Полтави, 2020–2026).
+- **API Prozorro.Продажі (`https://procedure.prozorro.sale/api`)**:
+  - `GET /registry/objects/search/byDateModified/{iso}?limit=100` — збагачення реєстру об’єктів оренди.
+  - `GET /search/byDateModified/{iso}?limit=100` — завантаження орендних аукціонів і ставок.
+- **OpenStreetMap Nominatim** (`https://nominatim.openstreetmap.org/search`) — резервне геокодування адрес без координат.
 
-## Team start
+## 4. Архітектура та запуск (Docker Compose < 5 хв)
 
-1. Read the [project brief](docs/PROJECT_BRIEF_UA.md).
-2. Pick an open Issue and assign yourself.
-3. Create a branch for the Issue; do not push feature work directly to main.
-4. Open a Pull Request and link the Issue.
-5. Keep every displayed fact linked to its source.
+- **Backend:** C# / ASP.NET Core 10, Entity Framework Core, PostgreSQL 17, Serilog, OpenAPI + Scalar.
+- **Frontend:** Vanilla HTML/CSS/ES Modules, Leaflet (з автономним SVG-резервом Полтави).
+- **Публічна та внутрішня частини розділені:** гості бачать каталог, карту, аналітику, індикатори ризику та експорт; запуск синхронізації/збагачення закритий JWT-авторизацією (`Admin`, `/import.html` через підвал).
 
-## Stack direction
+### Інструкція запуску на чистій машині
+1. Скопіюй `.env.docker.example` у `.env.docker` і заповни паролі БД, `Jwt__Secret` (мін. 32 символи) та `Seed__Admin__Email` / `Seed__Admin__Password`.
+2. Запусти проєкт:
 
-- Backend: C#, ASP.NET Core Web API controllers, PostgreSQL, EF Core, Redis cache.
-- Frontend: HTML, CSS, JavaScript; Leaflet for the map.
-- Data: Prozorro public API and verified city open-data files. No browser-based scraping.
-- Local orchestration: Docker Compose.
+    docker compose up --build
 
-## Repository map
+3. Відкрий у браузері `http://localhost:8080/` (API та Swagger/Scalar: `http://localhost:8080/scalar/v1`).
+   - При старті автоматично створюються таблиці БД, завантажуються всі 553 об’єкти з `data/listProzorroSales.csv`, і у фоні запускається синхронізатор `RentalSyncHostedService`, який збагачує об’єкти й аукціони з `procedure.prozorro.sale/api`.
 
-- backend/ — API and persistence.
-- frontend/ — website.
-- data/samples/ — small, safe, cited demo data.
-- docs/ — project brief, data validation notes, decisions, and demo plan.
+## 5. Відомі обмеження та зауваження
+- Дані про фактичні щомісячні платежі та заборгованість орендарів не входять до пакета `P3-01`.
+- Повний прохід 5-річної історії API Prozorro.Продажі у фоні триває ~1–3 хвилини після першого старту; прогрес збагачення та дата останнього оновлення відображаються прямо в інтерфейсі.
+- Усі дефекти вихідного набору задокументовані у **`data-defects.csv`**.
 
-## Source links
-
-- [Prozorro API documentation](https://prozorro-api-docs.readthedocs.io/en/master/tendering/basic-actions/tenders.html)
-- [Poltava open-data portal](https://odata.rada-poltava.gov.ua/datasetsall)
-
-## Frontend prototype
-
-Run `node src/frontend/serve.mjs` from the repository root and open http://127.0.0.1:4173/. The frontend uses the backend API at http://localhost:5000. The local server provides the canonical `data/procurements.seed.json` when the API is unavailable. For cross-origin requests, allow http://127.0.0.1:4173 in `CORS_ALLOWED_ORIGINS` on the backend.
-
-## Status
-
-Planning and data validation. API field availability, procurement selection rules, exact locations, and links to city budget records must be confirmed from real examples before being promised in the product.
+## 6. Попередні напрацювання та використані ШІ-інструменти
+- **Попередні напрацювання:** базовий шаблон WebAPI (`CivicTrace` — ASP.NET Core + PostgreSQL + JWT + Docker + базова верстка каталогу/карти) було підготовлено командою на етапі підготовки до хакатону для відкритих даних; під час хакатону платформу адаптовано під Трек 3 (модуль `RentalObjects`/`RentalAuctions`, інтеграція з `procedure.prozorro.sale/api`, імпорт 553 об’єктів `P3-01`, аналітика орендного портфеля та 5 індикаторів ризику EUACI).
+- **ШІ-інструменти:** використовувався Gemini / LLM-асистент для прискорення розробки парсерів API, UI-компонентів і документування методики; уся бізнес-логіка, індикатори та відповідність реальним JSON API перевірялися командою вручну.
