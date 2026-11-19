@@ -43,9 +43,17 @@ logoutBtn.addEventListener('click', async () => { await logoutAdmin(); updateUi(
 
 syncBtn.addEventListener('click', async () => {
   syncBtn.disabled = true;
-  syncStatus.innerHTML = '<p class="muted">Збагачуємо 553 об’єкти оренди та аукціони з Prozorro.Продажі API… Це може тривати 30–90 секунд.</p>';
+  const controller = new AbortController();
+  const started = Date.now();
+  const timeout = setTimeout(() => controller.abort(), 180000);
+  const updateProgress = () => {
+    const seconds = Math.floor((Date.now() - started) / 1000);
+    syncStatus.textContent = `Очікуємо відповідь сервера. Минуло ${seconds} с. Оновлення великого набору може тривати кілька хвилин.`;
+  };
+  updateProgress();
+  const progress = setInterval(updateProgress, 1000);
   try {
-    const res = await triggerRentalSync(60);
+    const res = await triggerRentalSync(60, controller.signal);
     syncStatus.innerHTML = `
       <div class="notice notice-ok">
         <strong>Синхронізацію завершено!</strong><br>
@@ -57,8 +65,10 @@ syncBtn.addEventListener('click', async () => {
       </div>
     `;
   } catch (err) {
-    syncStatus.innerHTML = `<div class="notice notice-risk">${escapeHtml(err.message)}</div>`;
+    syncStatus.innerHTML = `<div class="notice notice-risk">${controller.signal.aborted ? 'Сервер не підтвердив завершення за 3 хвилини. Оновлення може продовжуватися на сервері. Перевірте дані в каталозі перед повторним запуском.' : escapeHtml(err.message)}</div>`;
   } finally {
+    clearTimeout(timeout);
+    clearInterval(progress);
     syncBtn.disabled = false;
   }
 });
