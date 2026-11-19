@@ -17,6 +17,7 @@ namespace CivicTrace.Application.Features.Prozorro.Commands.ImportProcurement;
 
 public sealed class ImportProcurementCommandHandler(
     IProzorroClient prozorroClient,
+    IGeocoderService geocoder,
     IAppDbContext dbContext,
     IValidator<ImportProcurementCommand> validator,
     IOptions<ProzorroOptions> prozorroOptions)
@@ -38,7 +39,6 @@ public sealed class ImportProcurementCommandHandler(
         if (tenderResult.IsError)
             return tenderResult.Errors;
 
-        // План закупівлі потрібен для фінансування й planId; невдача не зупиняє імпорт
         ProzorroPlan? prozorroPlan = null;
         string? planProblem = null;
 
@@ -73,7 +73,25 @@ public sealed class ImportProcurementCommandHandler(
                 "Prozorro.AlreadyImported",
                 $"Procurement '{plan.ExternalId}' is already in the database. Set replaceExisting to true to import it again.");
 
-        // ---- організації: знаходимо за ЄДРПОУ або створюємо
+        // Геокодування адреси в Полтаві, якщо Prozorro не передав координати
+        var place = plan.Place;
+        var needsCheckList = plan.NeedsCheck.ToList();
+
+        if (place.Latitude is null && !string.IsNullOrWhiteSpace(place.Address))
+        {
+            var coords = await geocoder.GeocodePoltavaAsync(place.Address, ct);
+            if (coords is { } c)
+            {
+                place = place with
+                {
+                    Latitude = c.Latitude,
+                    Longitude = c.Longitude,
+                    CoordinatesStatus = CoordinatesStatus.NeedsCheck
+                };
+                needsCheckList.Add("Координати визначено автоматично за адресою (OpenStreetMap Nominatim); команда їх не звіряла.");
+            }
+        }
+
         var wanted = new Dictionary<string, ImportedOrganization>(StringComparer.Ordinal);
 
         void Want(ImportedOrganization? organization)
@@ -127,7 +145,6 @@ public sealed class ImportProcurementCommandHandler(
             .Concat(newOrganizations)
             .ToDictionary(o => o.Id);
 
-        // ---- закупівля
         var buyer = OrganizationOf(plan.Buyer.Edrpou);
         var contractor = plan.Contractor is null ? null : OrganizationOf(plan.Contractor.Edrpou);
 
@@ -145,7 +162,7 @@ public sealed class ImportProcurementCommandHandler(
             ContractAmount: plan.ContractAmount,
             Status: plan.Status,
             SourceStatus: plan.SourceStatus,
-            Place: plan.Place,
+            Place: place,
             PeriodStart: plan.PeriodStart,
             PeriodEnd: plan.PeriodEnd,
             NonCompetitiveBasis: plan.NonCompetitiveBasis,
@@ -210,7 +227,7 @@ public sealed class ImportProcurementCommandHandler(
                 return added.Errors;
         }
 
-        foreach (var text in plan.NeedsCheck)
+        foreach (var text in needsCheckList)
         {
             var added = procurement.AddDataGap(DataGapKind.NeedsCheck, text);
 

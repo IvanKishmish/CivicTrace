@@ -7,10 +7,6 @@ using ErrorOr;
 
 namespace CivicTrace.Application.Features.Prozorro.Common;
 
-/// <summary>
-/// Чисте перетворення відповіді Prozorro API на ProzorroImportPlan. Нічого не вгадує: те, чого немає у відповіді,
-/// потрапляє в MissingData/NeedsCheck, а не вигадується. Непідтримувані випадки повертаються як помилки.
-/// </summary>
 public static class ProzorroTenderMapper
 {
     private const string EdrScheme = "UA-EDR";
@@ -35,18 +31,18 @@ public static class ProzorroTenderMapper
         if (title is null)
             errors.Add(Error.Validation("Prozorro.TitleMissing", "The tender response has no title."));
 
-        // ---- спосіб закупівлі
-        var method = default(ProcurementMethod);
         var methodType = Clean(tender.ProcurementMethodType);
-        if (methodType is null || !methodTypeMap.TryGetValue(methodType, out method))
+        ProcurementMethod method;
+        if (methodType is not null && methodTypeMap.TryGetValue(methodType, out var mappedMethod))
         {
-            errors.Add(Error.Validation(
-                "Prozorro.UnsupportedMethod",
-                $"Unsupported procurementMethodType '{methodType}'. Add it to Prozorro:MethodTypeMap in configuration " +
-                $"(value: one of {string.Join(", ", Enum.GetNames<ProcurementMethod>())})."));
+            method = mappedMethod;
+        }
+        else
+        {
+            method = ProcurementMethod.Other;
+            warnings.Add($"Невідомий тип процедури '{methodType ?? "empty"}' збережено як «Інша процедура».");
         }
 
-        // ---- тип предмету
         ProcurementKind? kind = tender.MainProcurementCategory switch
         {
             "goods" => ProcurementKind.Goods,
@@ -58,7 +54,6 @@ public static class ProzorroTenderMapper
         if (kind is null)
             errors.Add(Error.Validation("Prozorro.KindMissing", "mainProcurementCategory is missing or unsupported."));
 
-        // ---- код ДК 021
         var classification = (tender.Items ?? [])
             .Select(i => i.Classification)
             .FirstOrDefault(c => c is not null && !string.IsNullOrWhiteSpace(c.Id) && IsCpvScheme(c.Scheme));
@@ -66,34 +61,42 @@ public static class ProzorroTenderMapper
         if (classification is null)
             errors.Add(Error.Validation("Prozorro.CpvMissing", "No ДК 021 classification was found in the tender items."));
 
-        // ---- статус
         ProcurementStatus status = default;
         var sourceStatus = string.Empty;
-        switch (tender.Status)
+        var rawStatus = Clean(tender.Status);
+
+        if (string.Equals(rawStatus, "complete", StringComparison.OrdinalIgnoreCase))
         {
-            case "complete":
-                status = ProcurementStatus.ContractSigned;
-                sourceStatus = "Завершена";
-                break;
-
-            case "unsuccessful":
-                status = ProcurementStatus.NotHeld;
-                sourceStatus = "Торги не відбулися";
-                break;
-
-            default:
-                errors.Add(Error.Validation(
-                    "Prozorro.UnsupportedStatus",
-                    $"Tender status '{tender.Status}' is not supported yet; only 'complete' and 'unsuccessful' can be imported."));
-                break;
+            status = ProcurementStatus.ContractSigned;
+            sourceStatus = "Завершена";
+        }
+        else if (string.Equals(rawStatus, "unsuccessful", StringComparison.OrdinalIgnoreCase))
+        {
+            status = ProcurementStatus.NotHeld;
+            sourceStatus = "Торги не відбулися";
+        }
+        else if (string.Equals(rawStatus, "cancelled", StringComparison.OrdinalIgnoreCase))
+        {
+            status = ProcurementStatus.Cancelled;
+            sourceStatus = "Відмінена";
+        }
+        else if (rawStatus is not null && rawStatus.StartsWith("active", StringComparison.OrdinalIgnoreCase))
+        {
+            status = ProcurementStatus.Active;
+            sourceStatus = $"Триває ({rawStatus})";
+        }
+        else
+        {
+            errors.Add(Error.Validation(
+                "Prozorro.UnsupportedStatus",
+                $"Tender status '{tender.Status}' is not supported."));
         }
 
-        // ---- замовник
         var buyer = ToOrganization(tender.ProcuringEntity);
         if (buyer is null)
             errors.Add(Error.Validation(
                 "Prozorro.BuyerMissing",
-                "The procuring entity has no name or no UA-EDR identifier."));
+                "The procuring entity has no name or no 8-digit UA-EDR identifier."));
 
         if (errors.Count > 0)
             return errors;
@@ -101,7 +104,6 @@ public static class ProzorroTenderMapper
         var sourceUrl = $"https://prozorro.gov.ua/tender/{externalId}";
         var cpv = new CpvClassification(classification!.Id!.Trim(), Clean(classification.Description) ?? classification.Id!.Trim());
 
-        // ---- договір, переможець, суми
         var awards = tender.Awards ?? [];
         var contracts = tender.Contracts ?? [];
 
@@ -135,7 +137,7 @@ public static class ProzorroTenderMapper
                 if (contractor is null)
                     errors.Add(Error.Validation(
                         "Prozorro.ContractorMissing",
-                        "The winning supplier has no name or no UA-EDR identifier."));
+                        "The winning supplier has no name or no 8-digit UA-EDR identifier."));
 
                 contractAmount = ToMoney(contract?.Value);
                 if (contractAmount is null)
@@ -152,13 +154,31 @@ public static class ProzorroTenderMapper
             if (errors.Count > 0)
                 return errors;
         }
+        else if (status == ProcurementStatus.Active)
+        {
+            var activeAwards = awards.Where(a => a.Status == "active").ToList();
+            if (activeAwards.Count == 1)
+            {
+                var award = activeAwards[0];
+                var maybeContract = contracts.FirstOrDefault(c => c.Status == "active" && (c.AwardID is null || c.AwardID == award.Id));
+                var maybeSupplier = ToOrganization(award.Suppliers?.FirstOrDefault());
+                var maybeAmount = ToMoney(maybeContract?.Value);
 
-        // ---- пропозиції
+                if (maybeContract is not null && maybeSupplier is not null && maybeAmount is not null)
+                {
+                    winningAward = award;
+                    contract = maybeContract;
+                    contractor = maybeSupplier;
+                    contractAmount = maybeAmount;
+                }
+            }
+        }
+
         var bidders = new Dictionary<string, ImportedOrganization>(StringComparer.Ordinal);
         var bids = new List<ImportedBid>();
         var bidsComplete = false;
 
-        if (status == ProcurementStatus.ContractSigned)
+        if (status is ProcurementStatus.ContractSigned or ProcurementStatus.Active)
         {
             var winnerEdrpou = contractor?.Edrpou;
 
@@ -187,16 +207,10 @@ public static class ProzorroTenderMapper
                     var amount = ToMoney(bid.Value);
 
                     if (organization is null || amount is null)
-                    {
-                        warnings.Add("Пропозицію без придатних даних про учасника чи суму пропущено.");
                         continue;
-                    }
 
                     if (bidders.ContainsKey(organization.Edrpou))
-                    {
-                        warnings.Add($"Другу пропозицію того самого учасника (ЄДРПОУ {organization.Edrpou}) пропущено.");
                         continue;
-                    }
 
                     bidders[organization.Edrpou] = organization;
 
@@ -209,9 +223,8 @@ public static class ProzorroTenderMapper
 
                 bidsComplete = bids.Count >= 2;
             }
-            else
+            else if (awards.Count > 0)
             {
-                // Пропозиції в API не передано: показуємо лише учасників із рішеннями за результатами розгляду
                 foreach (var award in awards)
                 {
                     var organization = ToOrganization(award.Suppliers?.FirstOrDefault());
@@ -231,11 +244,11 @@ public static class ProzorroTenderMapper
                     bids.Add(new ImportedBid(organization.Edrpou, amount.Value, amount.VatIncluded, outcome));
                 }
 
-                missing.Add("Реєстр пропозицій у відповіді API відсутній; показано лише учасників із рішеннями за результатами розгляду.");
+                if (bids.Count > 0)
+                    missing.Add("Реєстр пропозицій у відповіді API відсутній; показано лише учасників із рішеннями за результатами розгляду.");
             }
         }
 
-        // ---- місце й період
         var item = (tender.Items ?? []).FirstOrDefault(i => i.DeliveryAddress is not null) ?? (tender.Items ?? []).FirstOrDefault();
         var address = FormatAddress(item?.DeliveryAddress);
 
@@ -265,7 +278,6 @@ public static class ProzorroTenderMapper
 
         var place = new ProcurementPlace(address, placeType, latitude, longitude, coordinatesStatus);
 
-        // ---- підстава неконкурентної закупівлі
         NonCompetitiveBasis? basis = null;
 
         if (method == ProcurementMethod.NoElectronicSystem)
@@ -278,7 +290,6 @@ public static class ProzorroTenderMapper
                 missing.Add("Обґрунтування вибору неконкурентної процедури у відповіді API не передано.");
         }
 
-        // ---- події
         var events = new List<ImportedEvent>();
 
         void AddEvent(DateOnly? date, EventStage stage, string text, string? dateNote = null)
@@ -327,8 +338,8 @@ public static class ProzorroTenderMapper
                 signedDate is null ? "Дата з поля date договору; дата підписання в API не вказана" : null);
         }
 
-        if (status == ProcurementStatus.NotHeld)
-            AddEvent(tenderPeriodEnd, EventStage.Cancelled, "Закупівлю завершено без укладення договору (статус unsuccessful)");
+        if (status is ProcurementStatus.NotHeld or ProcurementStatus.Cancelled)
+            AddEvent(tenderPeriodEnd, EventStage.Cancelled, $"Закупівлю завершено без укладення договору (статус {rawStatus})");
 
         var orderedEvents = events
             .Select((e, index) => (e, index))
@@ -338,16 +349,12 @@ public static class ProzorroTenderMapper
             .Select(x => x.e)
             .ToList();
 
-        // ---- план закупівлі: ідентифікатор і джерела фінансування
         var funding = new List<FundingSourceCreationParams>();
 
         foreach (var part in plan?.Budget?.Breakdown ?? [])
         {
             if (part.Value?.Amount is not { } fundingAmount)
-            {
-                warnings.Add("Складову бюджету плану без суми пропущено.");
                 continue;
-            }
 
             funding.Add(new FundingSourceCreationParams(
                 FundingSourceLabel(part),
@@ -369,7 +376,6 @@ public static class ProzorroTenderMapper
         if (planProblem is not null)
             warnings.Add($"План закупівлі не прочитано: {planProblem}");
 
-        // ---- стандартні прогалини
         if (status == ProcurementStatus.ContractSigned)
             missing.Add("Відомостей про фактичне виконання (постачання, надання послуг, роботи) не знайдено в перевірених джерелах.");
 
@@ -402,8 +408,6 @@ public static class ProzorroTenderMapper
             Warnings: warnings,
             SourceUrl: sourceUrl);
     }
-
-    // ---------- допоміжні
 
     private static string? Clean(string? value)
         => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
@@ -493,6 +497,9 @@ public static class ProzorroTenderMapper
         var scheme = Clean(organization?.Identifier?.Scheme);
 
         if (edrpou is null || (scheme is not null && !string.Equals(scheme, EdrScheme, StringComparison.OrdinalIgnoreCase)))
+            return null;
+
+        if (edrpou.Length != 8 || !edrpou.All(char.IsAsciiDigit))
             return null;
 
         var name = Clean(organization?.Identifier?.LegalName) ?? Clean(organization?.Name);

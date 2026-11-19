@@ -18,6 +18,46 @@ public sealed class ProzorroClient(HttpClient httpClient, ILogger<ProzorroClient
     public Task<ErrorOr<ProzorroPlan>> GetPlanAsync(string planApiId, CancellationToken ct = default)
         => GetDataAsync<ProzorroPlanEnvelope, ProzorroPlan>($"plans/{planApiId}", "Plan", planApiId, e => e.Data, ct);
 
+    public async Task<ErrorOr<ProzorroTenderFeedEnvelope>> GetTendersPageAsync(
+        string? offset = null,
+        int limit = 100,
+        CancellationToken ct = default)
+    {
+        var path = $"tenders?descending=1&limit={limit}&opt_fields=procuringEntity,status,tenderID";
+        if (!string.IsNullOrWhiteSpace(offset))
+            path += $"&offset={Uri.EscapeDataString(offset)}";
+
+        HttpResponseMessage response;
+        try
+        {
+            response = await httpClient.GetAsync(path, ct);
+        }
+        catch (HttpRequestException ex)
+        {
+            logger.LogWarning(ex, "Prozorro feed request failed");
+            return Error.Failure("Prozorro.Unreachable", "The Prozorro API is unreachable.");
+        }
+        catch (TaskCanceledException) when (!ct.IsCancellationRequested)
+        {
+            return Error.Failure("Prozorro.Timeout", "The Prozorro API feed timed out.");
+        }
+
+        using (response)
+        {
+            if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                return Error.Failure("Prozorro.RateLimited", "The Prozorro API is rate limiting requests.");
+
+            if (!response.IsSuccessStatusCode)
+                return Error.Failure("Prozorro.Unavailable", $"The Prozorro API returned status {(int)response.StatusCode}.");
+
+            var envelope = await response.Content.ReadFromJsonAsync<ProzorroTenderFeedEnvelope>(JsonOptions, ct);
+            if (envelope is null)
+                return Error.Failure("Prozorro.InvalidResponse", "The Prozorro feed response could not be parsed.");
+
+            return envelope;
+        }
+    }
+
     private async Task<ErrorOr<TData>> GetDataAsync<TEnvelope, TData>(
         string path,
         string kind,
