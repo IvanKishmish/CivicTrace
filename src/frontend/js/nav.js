@@ -5,10 +5,11 @@ export function renderNav(activeKey) {
     { key: 'catalog', href: './index.html', label: 'Каталог (553)' },
     { key: 'map', href: './map.html', label: 'Мапа об’єктів' },
     { key: 'analytics', href: './analytics.html', label: 'Аналітика і ризики' },
-    { key: 'about', href: './about.html', label: 'Методика і дефекти' }
+    { key: 'about', href: './about.html', label: 'Методика і дефекти' },
+    { key: 'admin', href: './import.html', label: 'Вхід' }
   ];
   nav.innerHTML = links
-    .map((l) => `<a class="nav-link${l.key === activeKey ? ' is-active' : ''}" href="${l.href}"${l.key === activeKey ? ' aria-current="page"' : ''}>${l.label}</a>`)
+    .map((l) => `<a class="nav-link${l.key === activeKey ? ' is-active' : ''}${l.key === 'admin' ? ' nav-link-admin' : ''}" href="${l.href}"${l.key === activeKey ? ' aria-current="page"' : ''}>${l.key === 'admin' ? 'Вхід адміністратора' : l.label}</a>`)
     .join('');
 }
 

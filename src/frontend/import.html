@@ -17,7 +17,8 @@
   <main id="main" class="container">
     <section class="hero">
       <p class="eyebrow">Закритий доступ</p>
-      <h1>Оновлення та збагачення з Prozorro.Продажі</h1>
+      <h1>Адміністрування CivicTrace</h1>
+      <p class="intro">Публічний каталог і аналітика відкриті без облікового запису. Адміністратор входить, щоб запускати синхронізацію даних.</p>
     </section>
 
     <section class="panel" style="padding:22px;max-width:500px;">
@@ -26,10 +27,13 @@
       <p id="auth-message" class="small-note" aria-live="polite"></p>
       <button type="button" id="logout-btn" class="button button-secondary button-sm" hidden>Вийти</button>
       <form id="auth-form" style="display:grid;gap:10px;margin-top:10px;">
-        <input id="login-email" type="email" required placeholder="Email адміністратора">
-        <input id="login-password" type="password" required placeholder="Пароль">
+        <label for="login-email">Електронна пошта</label>
+        <input id="login-email" type="email" autocomplete="username" required placeholder="admin@example.org">
+        <label for="login-password">Пароль</label>
+        <input id="login-password" type="password" autocomplete="current-password" required placeholder="Пароль адміністратора">
         <button type="submit" class="button">Увійти</button>
       </form>
+      <p class="small-note">Форма публічної реєстрації поки не потрібна: акаунти відвідувачів не мають окремих функцій, а самореєстрація не надає прав адміністратора.</p>
     </section>
 
     <section id="admin-workspace" hidden class="panel" style="padding:22px;margin-top:20px;">

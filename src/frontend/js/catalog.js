@@ -26,9 +26,14 @@ const kpiEl = document.getElementById('kpi-strip');
 const bannerEl = document.getElementById('catalog-mode');
 const miniMapEl = document.getElementById('catalog-map');
 const mapSummaryEl = document.getElementById('catalog-map-summary');
+const refreshMapBtn = document.getElementById('refresh-map');
 
 let page = 1;
 let timer = null;
+let mapHandle = null;
+let mapRetryTimer = null;
+let mapRetryCount = 0;
+const mapRetryLimit = 8;
 
 function params() {
   return {
@@ -131,9 +136,49 @@ async function refresh() {
   }
 }
 
-async function initSummaryAndMap() {
+async function refreshMap({ automatic = false } = {}) {
+  if (!refreshMapBtn || !miniMapEl) return;
+  if (!automatic) {
+    mapRetryCount = 0;
+    clearTimeout(mapRetryTimer);
+    mapSummaryEl.textContent = 'Оновлюємо карту…';
+  }
+
+  refreshMapBtn.disabled = true;
   try {
-    const [analytics, mapData] = await Promise.all([fetchRentalAnalytics(), fetchRentalMap()]);
+    const mapData = await fetchRentalMap();
+    const waitingForCoordinates = mapData.totalObjects > 0 && mapData.mappedCount === 0;
+    mapSummaryEl.textContent = waitingForCoordinates
+      ? `Об’єкти завантажено (${mapData.totalObjects}), координати ще синхронізуються. Карта оновиться автоматично.`
+      : `На мапі: ${mapData.mappedCount} із ${mapData.totalObjects} об’єктів · Негеокодовано: ${mapData.ungeocodedPercent}%`;
+
+    mapHandle?.destroy();
+    mapHandle = renderMapWidget(miniMapEl, mapData.points, { scrollWheelZoom: false });
+
+    if (waitingForCoordinates && mapRetryCount < mapRetryLimit) {
+      mapRetryCount += 1;
+      mapRetryTimer = setTimeout(() => refreshMap({ automatic: true }), 15000);
+    } else if (!waitingForCoordinates) {
+      mapRetryCount = 0;
+    } else {
+      mapSummaryEl.textContent += ' Натисніть «Оновити», щоб перевірити ще раз.';
+    }
+  } catch (err) {
+    mapSummaryEl.textContent = `Не вдалося завантажити карту: ${err.message}. Перевірте з’єднання з API та спробуйте ще раз.`;
+    mapHandle?.destroy();
+    mapHandle = null;
+    if (mapRetryCount < mapRetryLimit) {
+      mapRetryCount += 1;
+      mapRetryTimer = setTimeout(() => refreshMap({ automatic: true }), 15000);
+    }
+  } finally {
+    refreshMapBtn.disabled = false;
+  }
+}
+
+async function initSummary() {
+  try {
+    const analytics = await fetchRentalAnalytics();
     renderLastUpdatedBanner(bannerEl, analytics.lastUpdatedAt, `Збагачено ${analytics.enrichedCount} із ${analytics.totalObjects}`);
 
     const freeCount = analytics.byStatus.find((s) => s.key === 'free')?.count ?? 0;
@@ -159,11 +204,13 @@ async function initSummaryAndMap() {
       o.textContent = `${y.key} (${y.count})`;
       yearEl.append(o);
     }
-
-    mapSummaryEl.textContent = `На мапі: ${mapData.mappedCount} об’єктів · Негеокодовано: ${mapData.ungeocodedPercent}%`;
-    renderMapWidget(miniMapEl, mapData.points, { scrollWheelZoom: false });
-  } catch { }
+  } catch (err) {
+    kpiEl.innerHTML = `<div class="panel empty-state" role="status">Не вдалося завантажити показники: ${escapeHtml(err.message)}</div>`;
+    bannerEl.textContent = 'Аналітика тимчасово недоступна. Перевірте підключення до API.';
+  }
 }
+
+refreshMapBtn?.addEventListener('click', () => refreshMap());
 
 document.getElementById('export-csv')?.addEventListener('click', () => { location.href = exportRentalsUrl('csv'); });
 document.getElementById('export-json')?.addEventListener('click', () => { location.href = exportRentalsUrl('json'); });
@@ -176,5 +223,6 @@ form.addEventListener('reset', () => { setTimeout(() => { page = 1; refresh(); }
 form.addEventListener('submit', (e) => { e.preventDefault(); page = 1; refresh(); });
 
 fieldset.disabled = false;
-initSummaryAndMap();
+initSummary();
+refreshMap();
 refresh();

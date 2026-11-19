@@ -27,6 +27,10 @@
         Збагачений перелік 553 об’єктів оренди (набір міста <code>P3-01</code> + API Prozorro.Продажі): адреси, площі, статуси, балансоутримувачі, історія аукціонів та ознаки ризику.
         Перелік охоплює лише об’єкти, внесені до Prozorro.Продажі, і не є повним реєстром усього майна громади.
       </p>
+      <div class="hero-actions">
+        <a class="button" href="./analytics.html">Аналітика і сигнали ризику</a>
+        <a class="button button-secondary" href="./map.html">Відкрити карту</a>
+      </div>
     </section>
 
     <section id="kpi-strip" class="kpi-strip" aria-label="Ключові показники"></section>
@@ -120,7 +124,10 @@
           <div class="panel">
             <p class="eyebrow">Географія майна</p>
             <h2>Мапа приміщень</h2>
-            <p id="catalog-map-summary" class="small-note">Завантажуємо точки…</p>
+            <div class="map-summary-row">
+              <p id="catalog-map-summary" class="small-note" role="status" aria-live="polite">Завантажуємо точки…</p>
+              <button type="button" id="refresh-map" class="button button-secondary button-sm">Оновити</button>
+            </div>
             <div id="catalog-map" class="map-box"></div>
             <a class="button button-secondary button-sm" href="./map.html" style="width:100%;margin-top:12px;">Відкрити повну мапу →</a>
           </div>

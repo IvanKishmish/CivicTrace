@@ -13,7 +13,8 @@ export function groupPointsByCoords(points) {
   return Array.from(map.values());
 }
 
-function pinColor(statusCode) {
+function pinColor(statusCode, riskScore = 0) {
+  if (riskScore > 0) return '#a63838';
   if (statusCode === 'free') return '#256149';
   if (statusCode === 'on_auction') return '#23536b';
   if (statusCode === 'rented') return '#896122';
@@ -29,7 +30,9 @@ function popupHtml(item, shared = false) {
         ${item.areaSqm ? ` · ${escapeHtml(formatArea(item.areaSqm))}` : ''}
       </div>
       <div>${escapeHtml(item.address || 'Адресу не вказано')}</div>
+      ${Number.isFinite(Number(item.latitude)) && Number.isFinite(Number(item.longitude)) ? `<div><a href="https://www.google.com/maps/search/?api=1&amp;query=${encodeURIComponent(`${item.latitude},${item.longitude}`)}" target="_blank" rel="noopener noreferrer">Відкрити місце в Google Maps ↗</a></div>` : ''}
       ${item.currentContractValue != null ? `<div>Договір: <strong>${escapeHtml(formatMoney(item.currentContractValue))}</strong></div>` : ''}
+      ${item.riskScore > 0 ? `<div style="margin-top:6px;"><span class="badge badge-risk">Сигнали ризику: ${item.riskFlags.length} · бал ${item.riskScore}</span><ul class="clean-list">${item.riskFlags.map((f) => `<li>${escapeHtml(f.title)} — ${escapeHtml(f.reason)}</li>`).join('')}</ul><div class="small-note">Сигнал підказує, що перевірити, і сам по собі не свідчить про порушення.</div></div>` : ''}
       <div style="font-size:11px;color:#56665f;margin-top:3px;">
         ${escapeHtml(coordStatusText(item.coordinatesStatus, true))}${shared ? ' · рознесено для зручності вибору' : ''}
       </div>
@@ -42,7 +45,7 @@ export function renderMapWidget(container, points, options = {}) {
   container.innerHTML = '';
   const groups = groupPointsByCoords(points);
   if (groups.length === 0) {
-    container.innerHTML = '<div class="empty-state"><p>Поки немає точок з координатами — триває збагачення з Prozorro.Продажі.</p></div>';
+    container.innerHTML = '<div class="empty-state"><h3>Координати ще завантажуються</h3><p>Список об’єктів доступний нижче. Після синхронізації даних оновіть карту.</p></div>';
     return null;
   }
 
@@ -65,13 +68,14 @@ function renderLeaflet(container, groups, options) {
 
     if (group.items.length === 1) {
       const item = group.items[0];
-      const marker = L.circleMarker(basePos, { radius: 8, color: '#fff', weight: 2, fillColor: pinColor(item.statusCode), fillOpacity: 0.92 }).addTo(map);
+      const marker = L.circleMarker(basePos, { radius: 8, color: '#fff', weight: 2, fillColor: pinColor(item.statusCode, item.riskScore), fillOpacity: 0.92 }).addTo(map);
       marker.bindPopup(popupHtml(item, false), { maxWidth: 320 });
       markerById.set(item.ocid, { marker, pos: basePos });
       continue;
     }
 
-    const icon = L.divIcon({ className: 'civic-cluster-icon', html: `<div class="cluster-pin">${group.items.length}</div>`, iconSize: [30, 30], iconAnchor: [15, 15] });
+    const hasRisk = group.items.some((item) => item.riskScore > 0);
+    const icon = L.divIcon({ className: 'civic-cluster-icon', html: `<div class="cluster-pin${hasRisk ? ' cluster-pin-risk' : ''}">${group.items.length}</div>`, iconSize: [30, 30], iconAnchor: [15, 15] });
     const centerMarker = L.marker(basePos, { icon }).addTo(map);
     centerMarker.bindPopup(group.items.slice(0, 12).map((i) => popupHtml(i, false)).join(''), { maxWidth: 320 });
 
@@ -81,7 +85,7 @@ function renderLeaflet(container, groups, options) {
       const pos = [group.latitude + 0.00045 * Math.sin(angle), group.longitude + 0.0007 * Math.cos(angle)];
       bounds.push(pos);
       L.polyline([basePos, pos], { color: '#66756e', weight: 1.2, dashArray: '3, 4', opacity: 0.7 }).addTo(map);
-      const marker = L.circleMarker(pos, { radius: 7, color: '#fff', weight: 2, fillColor: pinColor(item.statusCode), fillOpacity: 0.94 }).addTo(map);
+      const marker = L.circleMarker(pos, { radius: 7, color: '#fff', weight: 2, fillColor: pinColor(item.statusCode, item.riskScore), fillOpacity: 0.94 }).addTo(map);
       marker.bindPopup(popupHtml(item, true), { maxWidth: 320 });
       markerById.set(item.ocid, { marker, pos });
     });
@@ -115,7 +119,7 @@ function renderOfflineSvg(container, groups) {
 
   const pins = groups.map((g, idx) => {
     const [x, y] = project(g.latitude, g.longitude);
-    const fill = pinColor(g.items[0].statusCode);
+    const fill = pinColor(g.items[0].statusCode, g.items[0].riskScore);
     return `<g class="svg-pin" data-idx="${idx}" tabindex="0" role="button" style="cursor:pointer;">
       <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${g.items.length > 1 ? 14 : 9}" fill="${fill}" stroke="#fff" stroke-width="2"></circle>
       ${g.items.length > 1 ? `<text x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">${g.items.length}</text>` : ''}
