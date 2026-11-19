@@ -1,130 +1,180 @@
-import { loadCatalog } from './data-service.js';
-import { filterCatalog, populateFilter } from './filters.js';
-import { formatAmount, unknown } from './mapper.js';
+import { exportRentalsUrl, fetchRentalAnalytics, fetchRentalMap, fetchRentals } from './api.js';
+import { coordStatusText, formatArea, formatMoney, listTypeLabel, safeUrl, statusBadgeClass } from './format.js';
+import { renderMapWidget } from './map-widget.js';
+import { escapeHtml, renderLastUpdatedBanner, renderNav } from './nav.js';
 
-const form = document.querySelector('#filters');
-const results = document.querySelector('#results');
-const count = document.querySelector('#result-count');
-const banner = document.querySelector('#catalog-mode');
-const controls = form.querySelector('fieldset');
-let items = [];
-let active = false;
+renderNav('catalog');
 
-function element(tag, text, className) {
-  const node = document.createElement(tag);
-  if (text != null) node.textContent = text;
-  if (className) node.className = className;
-  return node;
+const form = document.getElementById('filters');
+const fieldset = form.querySelector('.catalog-controls');
+const searchEl = document.getElementById('search');
+const statusEl = document.getElementById('status');
+const listTypeEl = document.getElementById('list-type');
+const objTypeEl = document.getElementById('object-type');
+const districtEl = document.getElementById('district');
+const yearEl = document.getElementById('year');
+const minAreaEl = document.getElementById('min-area');
+const maxAreaEl = document.getElementById('max-area');
+const sortEl = document.getElementById('sort-by');
+const unenrichedEl = document.getElementById('only-unenriched');
+const defectsEl = document.getElementById('only-defects');
+
+const resultsEl = document.getElementById('results');
+const countEl = document.getElementById('result-count');
+const paginationEl = document.getElementById('pagination');
+const kpiEl = document.getElementById('kpi-strip');
+const bannerEl = document.getElementById('catalog-mode');
+const miniMapEl = document.getElementById('catalog-map');
+const mapSummaryEl = document.getElementById('catalog-map-summary');
+
+let page = 1;
+let timer = null;
+
+function params() {
+  return {
+    search: searchEl.value.trim(),
+    status: statusEl.value,
+    listType: listTypeEl.value,
+    objectType: objTypeEl.value,
+    district: districtEl.value,
+    year: yearEl.value,
+    minArea: minAreaEl.value,
+    maxArea: maxAreaEl.value,
+    sortBy: sortEl.value,
+    onlyUnenriched: unenrichedEl.checked,
+    onlyWithDefects: defectsEl.checked,
+    pageNumber: page,
+    pageSize: 15
+  };
 }
 
-function amountFact(label, value, currency) {
-  const node = element('div');
-  node.append(element('span', label, 'muted'), element('strong', formatAmount(value, currency)));
-  return node;
-}
-
-function card(item) {
-  const node = element('article', null, 'panel procurement-card');
-  const top = element('div', null, 'card-top');
-  top.append(element('span', item.category ?? unknown, 'eyebrow'),
-    element('span', item.status ?? unknown, 'badge'));
-
-  const title = element('h3');
-  const detail = element('a', item.title ?? unknown);
-  detail.href = './procurement.html?' + new URLSearchParams({
-    id: item.externalId,
-    externalId: item.externalId,
-  });
-  title.append(detail);
-
-  const facts = element('div', null, 'card-facts');
-  facts.append(amountFact('Очікувана вартість', item.expectedAmount, item.currency),
-    amountFact('Сума договору', item.contractAmount, item.currency));
-
-  const footer = element('div', null, 'card-bottom');
-  footer.append(element('span', 'Джерело', 'muted'));
-  if (item.sourceUrl) {
-    const label = 'Відкрити джерело ↗';
-    const link = element('a', label);
-    link.href = item.sourceUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    footer.append(link);
-  } else {
-    footer.append(element('span', unknown, 'muted'));
+function renderCards(items) {
+  if (!items.length) {
+    resultsEl.innerHTML = '<div class="panel empty-state"><h3>Об’єктів не знайдено</h3><p>Змініть фільтри або скиньте пошук.</p></div>';
+    return;
   }
 
-  node.append(top, title, element('p', item.externalId, 'muted record-id'),
-    element('p', item.buyer ?? unknown, 'buyer'), facts, footer);
-  return node;
+  resultsEl.innerHTML = items.map((r) => {
+    const url = safeUrl(r.canonicalUrl);
+    const enrichedBadge = r.enrichmentStatus === 'Enriched'
+      ? '<span class="badge badge-info">Збагачено з API</span>'
+      : '<span class="badge badge-warn">Очікує збагачення</span>';
+
+    return `
+      <article class="panel procurement-card">
+        <div class="card-top">
+          <span class="eyebrow">${escapeHtml(r.objectType)} · ${escapeHtml(listTypeLabel(r.listType))}</span>
+          <div class="card-badges">
+            <span class="${statusBadgeClass(r.statusCode)}">${escapeHtml(r.statusLabel)}</span>
+            ${enrichedBadge}
+            ${r.riskScore > 0 ? `<span class="badge badge-risk">Ознак ризику: ${r.riskFlags.length} (${r.riskScore})</span>` : ''}
+          </div>
+        </div>
+
+        <h3><a href="./rental.html?id=${encodeURIComponent(r.ocid)}">${escapeHtml(r.title)}</a></h3>
+        <div class="record-id">${escapeHtml(r.ocid)}${r.createdYear ? ` · ${r.createdYear} р.` : ''}</div>
+
+        <div class="card-facts">
+          <div>
+            <span class="fact-label">Площа</span>
+            <strong>${escapeHtml(formatArea(r.areaSqm))}</strong>
+          </div>
+          <div>
+            <span class="fact-label">Адреса</span>
+            <strong>${escapeHtml(r.address || 'Ще не збагачено')}</strong>
+          </div>
+          <div>
+            <span class="fact-label">Балансоутримувач / Договір</span>
+            <strong>${escapeHtml(r.propertyOwnerName || (r.currentContractValue != null ? formatMoney(r.currentContractValue) : 'Не вказано'))}</strong>
+          </div>
+        </div>
+
+        <div class="small-note" style="margin-bottom:10px;">
+          ${escapeHtml(coordStatusText(r.coordinatesStatus, r.hasCoordinates))}
+          ${r.auctions.length ? ` · Аукціонів: <strong>${r.auctions.length}</strong>` : ''}
+          ${r.dataDefectsNotes ? ` · <span style="color:var(--amber);">Дефект набору P3-01: ${escapeHtml(r.dataDefectsNotes)}</span>` : ''}
+        </div>
+
+        <div class="card-bottom">
+          <a class="button button-secondary button-sm" href="./rental.html?id=${encodeURIComponent(r.ocid)}">Картка об’єкта →</a>
+          ${url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Prozorro.Продажі ↗</a>` : ''}
+        </div>
+      </article>
+    `;
+  }).join('');
 }
 
-function render() {
-  if (!active) return;
-  const { q, category, status } = form.elements;
-  const shown = filterCatalog(items, { query: q.value, category: category.value, status: status.value });
-  count.textContent = 'Знайдено: ' + shown.length + ' із ' + items.length;
-  results.replaceChildren(...shown.map(card));
-  if (!shown.length) {
-    const empty = element('div', null, 'panel empty-state');
-    const message = items.length ? 'Змініть запит або скиньте фільтри.' : 'У джерелі поки немає записів.';
-    empty.append(element('h3', 'Нічого не знайдено'), element('p', message));
-    results.append(empty);
-  }
-  const params = new URLSearchParams();
-  for (const [key, value] of new FormData(form)) if (value) params.set(key, value);
-  const query = params.toString();
-  history.replaceState(null, '', location.pathname + (query ? '?' + query : ''));
+function renderPagination(data) {
+  if (data.totalPages <= 1) { paginationEl.innerHTML = ''; return; }
+  paginationEl.innerHTML = `
+    <span class="muted">Сторінка ${data.pageNumber} з ${data.totalPages} (усього ${data.totalCount})</span>
+    <div style="display:flex;gap:8px;">
+      <button type="button" class="button button-secondary button-sm" id="prev-p" ${data.pageNumber <= 1 ? 'disabled' : ''}>← Назад</button>
+      <button type="button" class="button button-secondary button-sm" id="next-p" ${data.pageNumber >= data.totalPages ? 'disabled' : ''}>Далі →</button>
+    </div>
+  `;
+  document.getElementById('prev-p')?.addEventListener('click', () => { page = Math.max(1, page - 1); refresh(); });
+  document.getElementById('next-p')?.addEventListener('click', () => { page = Math.min(data.totalPages, page + 1); refresh(); });
 }
 
-function retryButton() {
-  const button = element('button', 'Спробувати ще раз', 'button button-secondary');
-  button.type = 'button';
-  button.addEventListener('click', init);
-  return button;
-}
-
-async function init() {
-  active = false;
-  controls.disabled = true;
-  banner.replaceChildren();
-  results.replaceChildren();
-  results.setAttribute('aria-busy', 'true');
-  count.textContent = 'Завантажуємо закупівлі…';
+async function refresh() {
+  resultsEl.setAttribute('aria-busy', 'true');
   try {
-    const catalog = await loadCatalog();
-    items = catalog.items;
-    const message = catalog.apiFailed
-      ? 'API недоступне. Показуємо початковий набір CivicTrace.'
-      : catalog.origin === 'static' ? 'Джерело каталогу · Початковий набір CivicTrace' : 'Джерело каталогу · API CivicTrace';
-    banner.append(element('span', message));
-    if (catalog.apiFailed) banner.append(retryButton());
-    populateFilter(form.elements.category, items, 'category');
-    populateFilter(form.elements.status, items, 'status');
-    const params = new URLSearchParams(location.search);
-    for (const key of ['q', 'category', 'status']) {
-      const input = form.elements[key];
-      input.value = params.get(key) ?? '';
-      if (input.selectedIndex === -1) input.selectedIndex = 0;
-    }
-    active = true;
-    controls.disabled = false;
-    render();
-  } catch (error) {
-    count.textContent = 'Дані недоступні';
-    const panel = element('div', null, 'panel empty-state');
-    panel.setAttribute('role', 'alert');
-    panel.append(element('h3', 'Не вдалося завантажити каталог'), element('p', error.message), retryButton());
-    results.replaceChildren(panel);
+    const data = await fetchRentals(params());
+    countEl.textContent = `Знайдено об’єктів: ${data.totalCount}`;
+    renderCards(data.items);
+    renderPagination(data);
+  } catch (err) {
+    resultsEl.innerHTML = `<div class="panel empty-state"><p>${escapeHtml(err.message)}</p></div>`;
   } finally {
-    results.setAttribute('aria-busy', 'false');
+    resultsEl.setAttribute('aria-busy', 'false');
   }
 }
 
-form.addEventListener('input', render);
-form.addEventListener('submit', event => {
-  event.preventDefault();
-  render();
+async function initSummaryAndMap() {
+  try {
+    const [analytics, mapData] = await Promise.all([fetchRentalAnalytics(), fetchRentalMap()]);
+    renderLastUpdatedBanner(bannerEl, analytics.lastUpdatedAt, `Збагачено ${analytics.enrichedCount} із ${analytics.totalObjects}`);
+
+    const freeCount = analytics.byStatus.find((s) => s.key === 'free')?.count ?? 0;
+    const rentedCount = analytics.byStatus.find((s) => s.key === 'rented')?.count ?? 0;
+
+    kpiEl.innerHTML = `
+      <div class="panel kpi-card"><span>Об’єктів у переліку P3-01</span><strong>${analytics.totalObjects}</strong></div>
+      <div class="panel kpi-card"><span>Збагачено з Prozorro.Продажі</span><strong>${analytics.enrichedCount}</strong></div>
+      <div class="panel kpi-card"><span>Вільні / В оренді</span><strong>${freeCount} / ${rentedCount}</strong></div>
+      <div class="panel kpi-card"><span>Загальна відома площа</span><strong>${escapeHtml(formatArea(analytics.totalAreaSqm))}</strong></div>
+    `;
+
+    for (const t of analytics.byObjectType) {
+      const o = document.createElement('option');
+      o.value = t.key;
+      o.textContent = `${t.label} (${t.count})`;
+      objTypeEl.append(o);
+    }
+    for (const y of analytics.byYear) {
+      if (!/^\d{4}$/.test(y.key)) continue;
+      const o = document.createElement('option');
+      o.value = y.key;
+      o.textContent = `${y.key} (${y.count})`;
+      yearEl.append(o);
+    }
+
+    mapSummaryEl.textContent = `На мапі: ${mapData.mappedCount} об’єктів · Негеокодовано: ${mapData.ungeocodedPercent}%`;
+    renderMapWidget(miniMapEl, mapData.points, { scrollWheelZoom: false });
+  } catch { }
+}
+
+document.getElementById('export-csv')?.addEventListener('click', () => { location.href = exportRentalsUrl('csv'); });
+document.getElementById('export-json')?.addEventListener('click', () => { location.href = exportRentalsUrl('json'); });
+
+searchEl.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => { page = 1; refresh(); }, 220); });
+[statusEl, listTypeEl, objTypeEl, districtEl, yearEl, minAreaEl, maxAreaEl, sortEl, unenrichedEl, defectsEl].forEach((el) => {
+  el.addEventListener('change', () => { page = 1; refresh(); });
 });
-form.addEventListener('reset', () => setTimeout(render, 0));
-init();
+form.addEventListener('reset', () => { setTimeout(() => { page = 1; refresh(); }, 0); });
+form.addEventListener('submit', (e) => { e.preventDefault(); page = 1; refresh(); });
+
+fieldset.disabled = false;
+initSummaryAndMap();
+refresh();

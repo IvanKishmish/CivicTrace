@@ -3,61 +3,135 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Каталог публічних закупівель Полтави">
-  <title>Каталог закупівель — CivicTrace</title>
+  <meta name="description" content="CivicTrace — каталог і мапа 553 об’єктів оренди комунального майна Полтави (Трек 3).">
+  <title>Комунальне майно Полтави — CivicTrace</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./catalog.css">
+  <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script type="module" src="./js/catalog.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">До вмісту</a>
   <header class="site-header container">
     <a class="brand" href="./index.html">Civic<span>Trace</span><span class="brand-dot" aria-hidden="true">↗</span></a>
-    <span class="nav-link">Полтава · Публічні закупівлі</span>
+    <nav id="site-nav" class="site-nav" aria-label="Основна навігація"></nav>
   </header>
-  <div class="mock-banner"><div class="container" id="catalog-mode" aria-live="polite"></div></div>
+  <div class="mock-banner"><div class="container banner-row" id="catalog-mode" aria-live="polite">Завантажуємо дані…</div></div>
 
   <main id="main" class="container">
     <section class="hero">
-      <h1>Міські закупівлі Полтави</h1>
-      <p class="intro">Знайдіть закупівлю за назвою, замовником або ідентифікатором і перейдіть до джерела.</p>
+      <p class="eyebrow">Трек 3 · Прозоре управління комунальним майном Полтави</p>
+      <h1>Каталог та мапа об’єктів оренди</h1>
+      <p class="intro">
+        Збагачений перелік 553 об’єктів оренди (набір міста <code>P3-01</code> + API Prozorro.Продажі): адреси, площі, статуси, балансоутримувачі, історія аукціонів та ознаки ризику.
+        Перелік охоплює лише об’єкти, внесені до Prozorro.Продажі, і не є повним реєстром усього майна громади.
+      </p>
     </section>
-    <section aria-labelledby="catalog-title">
-      <div class="section-heading"><h2 id="catalog-title">Каталог закупівель</h2></div>
-      <form id="filters" class="panel filters" role="search">
-        <fieldset class="catalog-controls" aria-label="Фільтри каталогу" disabled>
+
+    <section id="kpi-strip" class="kpi-strip" aria-label="Ключові показники"></section>
+
+    <section>
+      <div class="section-heading" style="margin-bottom:10px;">
+        <h2 style="margin:0;">Пошук і фільтри</h2>
+        <div class="export-actions">
+          <button type="button" id="export-csv" class="button button-secondary button-sm">Експорт збагаченого CSV (для міста)</button>
+          <button type="button" id="export-json" class="button button-secondary button-sm">JSON</button>
+        </div>
+      </div>
+
+      <form id="filters" class="panel" role="search">
+        <fieldset class="catalog-controls" disabled>
           <div class="search-field">
-            <label for="search">Пошук закупівлі</label>
-            <input id="search" name="q" type="search" placeholder="Назва, замовник або ідентифікатор">
+            <label for="search">Пошук (OCID, адреса, назва, балансоутримувач)</label>
+            <input id="search" type="search" placeholder="Наприклад: Соборності або RGL001-UA-2022...">
           </div>
           <div>
-            <label for="category">Категорія</label>
-            <select id="category" name="category"><option value="">Усі категорії</option></select>
+            <label for="status">Статус об’єкта</label>
+            <select id="status">
+              <option value="">Усі статуси</option>
+              <option value="free">Вільне</option>
+              <option value="on_auction">На аукціоні</option>
+              <option value="rented">В оренді</option>
+              <option value="unknown">Не збагачено</option>
+            </select>
           </div>
           <div>
-            <label for="status">Статус процедури</label>
-            <select id="status" name="status"><option value="">Усі статуси</option></select>
+            <label for="list-type">Тип переліку</label>
+            <select id="list-type">
+              <option value="">Усі переліки</option>
+              <option value="first">1-й тип (аукціон)</option>
+              <option value="second">2-й тип (без аукціону)</option>
+            </select>
           </div>
-          <button type="reset" class="button button-secondary">Скинути</button>
+          <div>
+            <label for="object-type">Тип об’єкта</label>
+            <select id="object-type"><option value="">Усі типи</option></select>
+          </div>
+          <div>
+            <label for="district">Район</label>
+            <select id="district">
+              <option value="">Усі райони</option>
+              <option value="Шевченківський район">Шевченківський район</option>
+              <option value="Київський район">Київський район</option>
+              <option value="Подільський район">Подільський район</option>
+            </select>
+          </div>
+          <div>
+            <label for="year">Рік внесення</label>
+            <select id="year"><option value="">Усі роки</option></select>
+          </div>
+          <div>
+            <label for="min-area">Площа від (м²)</label>
+            <input id="min-area" type="number" min="0" step="1" placeholder="0">
+          </div>
+          <div>
+            <label for="max-area">Площа до (м²)</label>
+            <input id="max-area" type="number" min="0" step="1" placeholder="5000">
+          </div>
+          <div>
+            <label for="sort-by">Сортування</label>
+            <select id="sort-by">
+              <option value="year_desc">Спершу збагачені та новіші</option>
+              <option value="area_desc">Площа: спадання</option>
+              <option value="area_asc">Площа: зростання</option>
+              <option value="ocid_asc">За OCID</option>
+            </select>
+          </div>
+
+          <div class="catalog-actions">
+            <div style="display:flex;gap:16px;flex-wrap:wrap;">
+              <label class="checkbox-field"><input type="checkbox" id="only-unenriched"><span>Лише незбагачені (Ф3.1-01)</span></label>
+              <label class="checkbox-field"><input type="checkbox" id="only-defects"><span>Лише з дефектами набору P3-01</span></label>
+            </div>
+            <button type="reset" class="button button-secondary button-sm">Скинути</button>
+          </div>
         </fieldset>
       </form>
+
       <div class="catalog-layout">
-        <section aria-label="Результати пошуку">
-          <div class="results-heading"><p id="result-count" role="status">Завантажуємо закупівлі…</p></div>
+        <section>
+          <div class="results-heading"><p id="result-count" role="status">Завантажуємо…</p></div>
           <div id="results" aria-busy="true"></div>
+          <div id="pagination" class="pagination"></div>
         </section>
+
         <aside class="map-column">
-          <div class="panel map-placeholder">
-            <div class="map-grid" aria-hidden="true"><span>⌖</span></div>
-            <div class="map-copy">
-              <h2>Мапа закупівель</h2>
-              <p>Позначки з’являться після підтвердження координат місць робіт.</p>
-            </div>
+          <div class="panel">
+            <p class="eyebrow">Географія майна</p>
+            <h2>Мапа приміщень</h2>
+            <p id="catalog-map-summary" class="small-note">Завантажуємо точки…</p>
+            <div id="catalog-map" class="map-box"></div>
+            <a class="button button-secondary button-sm" href="./map.html" style="width:100%;margin-top:12px;">Відкрити повну мапу →</a>
           </div>
         </aside>
       </div>
     </section>
   </main>
-  <footer class="container site-footer"><span class="brand">CivicTrace</span></footer>
+
+  <footer class="container site-footer">
+    <span class="brand">CivicTrace</span>
+    <span>Трек 3 · Комунальне майно Полтави · <a href="./import.html" class="muted">Адміністрування</a></span>
+  </footer>
 </body>
 </html>

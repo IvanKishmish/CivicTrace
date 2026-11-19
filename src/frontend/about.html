@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Методика та дефекти даних — CivicTrace</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./js/about.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">До вмісту</a>
+  <header class="site-header container">
+    <a class="brand" href="./index.html">Civic<span>Trace</span><span class="brand-dot" aria-hidden="true">↗</span></a>
+    <nav id="site-nav" class="site-nav" aria-label="Основна навігація"></nav>
+  </header>
+  <div class="mock-banner"><div class="container">Прозорість методики та етика антикорупційної аналітики</div></div>
+  <main id="main" class="container">
+    <section class="hero">
+      <p class="eyebrow">METHODOLOGY.md & data-defects.csv</p>
+      <h1>Як працює збагачення 553 об’єктів та оцінка ризиків</h1>
+      <p class="intro">Рішення побудовано виключно на відкритих даних без скрапінгу та без зберігання персональних даних фізичних осіб.</p>
+    </section>
+    <div class="detail-grid" style="margin-top:0;">
+      <section class="panel">
+        <h2>Виявлені дефекти вихідного набору P3-01</h2>
+        <ul class="clean-list">
+          <li><strong>Лише 3 колонки:</strong> у всіх 553 рядках відсутні адреса, площа, статус і балансоутримувач — доповнюються з API Prozorro.Продажі.</li>
+          <li><strong>4 биті URL:</strong> подвійний слеш <code>planning//</code> у рядках 7, 11, 58, 259.</li>
+          <li><strong>Сторонній майданчик:</strong> рядок 191 (<code>RGL001-UA-20210920-01299</code>) веде на <code>sale.uub.com.ua</code>.</li>
+          <li><strong>Описка та пробіли:</strong> <code>«нежитові приміщення»</code> у <code>RGL001-UA-20210916-80842</code> та зайві пробіли у рядках 300, 314–341.</li>
+        </ul>
+      </section>
+      <section class="panel">
+        <h2>Етика, доступ і ліцензії</h2>
+        <ul class="clean-list">
+          <li><strong>Ризики, а не особи:</strong> ФОП і фізичні особи повністю знеособлені.</li>
+          <li><strong>Розділення доступу:</strong> публічна частина відкрита всім; синхронізація API доступна лише адміністратору.</li>
+          <li><strong>Ліцензії:</strong> код — MIT, методика індикаторів — CC BY 4.0 (детально в <code>METHODOLOGY.md</code>).</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+  <footer class="container site-footer">
+    <span class="brand">CivicTrace</span>
+    <span>Трек 3 · Прозоре управління комунальним майном · <a href="./import.html" class="muted">Адміністрування</a></span>
+  </footer>
+</body>
+</html>
