@@ -26,27 +26,27 @@ function barBlock(title, items) {
             <div style="width:${Math.max(3, Math.round((i.count / max) * 100))}%;height:100%;background:var(--accent);border-radius:6px;"></div>
           </div>
         </div>
-      `).join('') || '<p class="muted">Дані з’являться після збагачення.</p>'}
+      `).join('') || '<p class="muted">Показники з’являться після отримання даних із джерела.</p>'}
     </section>
   `;
 }
 
 async function load() {
   const a = await fetchRentalAnalytics();
-  renderLastUpdatedBanner(bannerEl, a.lastUpdatedAt, `Збагачено ${a.enrichedCount} із ${a.totalObjects}`);
+  renderLastUpdatedBanner(bannerEl, a.lastUpdatedAt, `Дані Prozorro.Продажі знайдено для ${a.enrichedCount} із ${a.totalObjects} записів`);
 
   summaryEl.innerHTML = `
-    <div class="panel kpi-card"><span>Об’єктів у портфелі</span><strong>${a.totalObjects}</strong><div class="small-note">Збагачено: ${a.enrichedCount} · Без аукціонів: ${a.objectsWithoutAuctionsCount}</div></div>
-    <div class="panel kpi-card"><span>Вільна площа (не передана)</span><strong>${escapeHtml(formatArea(a.freeAreaSqm))}</strong><div class="small-note">Із загальної відомої ${escapeHtml(formatArea(a.totalAreaSqm))}</div></div>
+    <div class="panel kpi-card"><span>Записів у переліку міста</span><strong>${a.totalObjects}</strong><div class="small-note">Зіставлено з Prozorro.Продажі: ${a.enrichedCount} · Без пов’язаних аукціонів: ${a.objectsWithoutAuctionsCount}</div></div>
+    <div class="panel kpi-card"><span>Відома площа об’єктів зі статусом «вільне»</span><strong>${escapeHtml(formatArea(a.freeAreaSqm))}</strong><div class="small-note">Сума відомих площ вільних записів, не всього майна громади</div></div>
     <div class="panel kpi-card"><span>Медіана ставки аукціонів</span><strong>${a.medianRatePerSqmMonth != null ? escapeHtml(formatMoney(a.medianRatePerSqmMonth)) + '/м²' : 'Очікує аукціонів'}</strong><div class="small-note">Орендних аукціонів у БД: ${a.auctionsCount}</div></div>
-    <div class="panel kpi-card"><span>Оцінка недоотриманого доходу</span><strong>${a.estimatedLostAnnualIncomeUah != null ? escapeHtml(formatMoney(a.estimatedLostAnnualIncomeUah)) + '/рік' : 'Потрібні медіана й вільна площа'}</strong><div class="small-note">Вільна площа × медіанна ставка × 12 міс.</div></div>
+    <div class="panel kpi-card"><span>Орієнтир потенційного річного доходу</span><strong>${a.estimatedLostAnnualIncomeUah != null ? escapeHtml(formatMoney(a.estimatedLostAnnualIncomeUah)) + '/рік' : 'Немає даних для оцінки'}</strong><div class="small-note">Груба оцінка: відома вільна площа × медіанна ставка аукціону × 12. Це не фактичний дохід і не прогноз бюджету.</div></div>
   `;
 
   chartsEl.innerHTML = `
     ${barBlock('За статусом', a.byStatus)}
-    ${barBlock('За роком внесення (P3-01)', a.byYear)}
+    ${barBlock('За роком внесення до міського переліку', a.byYear)}
     ${barBlock('За типом об’єкта', a.byObjectType)}
-    ${barBlock('Спрацьовані індикатори ризику', a.byRiskFlag)}
+    ${barBlock('Сигнали, що спрацювали', a.byRiskFlag)}
   `;
 
   rulesBody.innerHTML = a.riskRules.map((r) => `
@@ -73,9 +73,9 @@ async function load() {
     <tr>
       <td><a href="./rental.html?id=${encodeURIComponent(o.ocid)}"><code>${escapeHtml(o.ocid)}</code></a></td>
       <td>${escapeHtml(o.rawTitle)}</td>
-      <td>${escapeHtml(o.dataDefectsNotes || 'Очікує збагачення з API')}</td>
+      <td>${escapeHtml(o.dataDefectsNotes || 'Запис міського списку не знайдено в API')}</td>
     </tr>
-  `).join('') || '<tr><td colspan="3" class="muted">Усі 553 об’єкти успішно збагачені!</td></tr>';
+  `).join('') || '<tr><td colspan="3" class="muted">Для всіх записів знайдено відповідні дані в Prozorro.Продажі.</td></tr>';
 }
 
 document.getElementById('export-csv')?.addEventListener('click', () => { location.href = exportRentalsUrl('csv'); });

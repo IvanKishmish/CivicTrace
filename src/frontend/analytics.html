@@ -21,33 +21,34 @@
     <section class="hero" style="margin-bottom:20px;">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">Кейс 3.2 та 3.3 (EUACI «Доброчесність через дані»)</p>
-          <h1 style="margin:6px 0 8px;">Аналітика орендного портфеля та індикатори ризику</h1>
+      <p class="eyebrow">Огляд даних оренди Полтави</p>
+          <h1 style="margin:6px 0 8px;">Що відомо про оренду та що варто перевірити</h1>
         </div>
         <div class="export-actions">
-          <button type="button" id="export-csv" class="button button-sm">Експорт CSV</button>
-          <button type="button" id="export-json" class="button button-secondary button-sm">JSON</button>
+          <button type="button" id="export-csv" class="button button-sm">Завантажити CSV</button>
+          <button type="button" id="export-json" class="button button-secondary button-sm" title="Структурований формат для обробки програмами">JSON для розробників</button>
         </div>
       </div>
-      <p class="intro">Сигнали ризику позначають кейси для управлінської та антикорупційної перевірки й не є вироком. Усі розрахунки знеособлені щодо фізичних осіб.</p>
+      <p class="intro">Тут зведено дані міського переліку та знайдені записи Prozorro.Продажі: статуси, площі, аукціони й автоматичні сигнали. Це допомагає помітити прогалини або випадки для ручного перегляду; сигнал сам по собі не доводить порушення.</p>
     </section>
 
     <section id="analytics-summary" class="kpi-strip"></section>
     <section id="analytics-charts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin-bottom:20px;"></section>
 
     <section class="panel" style="padding:20px;margin-bottom:20px;">
-      <h2 style="margin-top:0;">Опис 5 індикаторів ризику (пороги з <code>data/risk-rules.json</code>)</h2>
+      <h2 style="margin-top:0;">Як працюють п’ять сигналів для перевірки</h2>
+      <p class="small-note">Кожен сигнал — це правило, що спрацювало на доступних даних. Бал допомагає впорядкувати записи, а не показує ймовірність порушення. Якщо ознака має звичайне пояснення, його також наведено.</p>
       <div class="table-wrap"><table class="data-table"><thead><tr><th>Індикатор</th><th class="num">Вага</th><th>Формула / Поріг</th><th>Чому це ризик</th><th>Легітимні пояснення</th></tr></thead><tbody id="rules-body"></tbody></table></div>
     </section>
 
     <section class="panel" style="padding:20px;margin-bottom:20px;">
       <h2 style="margin-top:0;">Список об’єктів зі спрацьованими сигналами ризику</h2>
-      <div class="table-wrap"><table class="data-table"><thead><tr><th>Об’єкт (OCID)</th><th>Статус</th><th class="num">Площа</th><th class="num">Бал</th><th>Сигнали</th></tr></thead><tbody id="risk-objects-body"></tbody></table></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>Об’єкт (ID у Prozorro.Продажі)</th><th>Статус</th><th class="num">Площа</th><th class="num">Бал сигналів</th><th>Сигнали</th></tr></thead><tbody id="risk-objects-body"></tbody></table></div>
     </section>
 
     <section class="panel" style="padding:20px;">
-      <h2 style="margin-top:0;">Об’єкти P3-01, що очікують на збагачення (Ф3.1-01)</h2>
-      <div class="table-wrap"><table class="data-table"><thead><tr><th>OCID</th><th>Назва в P3-01</th><th>Примітка / Дефект</th></tr></thead><tbody id="unenriched-body"></tbody></table></div>
+      <h2 style="margin-top:0;">Об’єкти, для яких не знайдено дані в Prozorro.Продажі</h2>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>ID об’єкта</th><th>Назва у вихідному переліку міста</th><th>Примітка / проблема даних</th></tr></thead><tbody id="unenriched-body"></tbody></table></div>
     </section>
   </main>
   <footer class="container site-footer">

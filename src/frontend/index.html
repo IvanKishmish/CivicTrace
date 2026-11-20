@@ -4,7 +4,7 @@
   <script src="./js/theme.js"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="CivicTrace — каталог і мапа 553 об’єктів оренди комунального майна Полтави (Трек 3).">
+  <meta name="description" content="CivicTrace допомагає шукати й перевіряти об’єкти оренди Полтави: об’єднує міський перелік з даними та аукціонами Prozorro.Продажі.">
   <title>Комунальне майно Полтави — CivicTrace</title>
   <link rel="icon" type="image/x-icon" href="./favicon.ico">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
@@ -23,33 +23,52 @@
 
   <main id="main" class="container page-intro">
     <section class="hero">
-      <p class="eyebrow">Трек 3 · Прозоре управління комунальним майном Полтави</p>
-      <h1>Каталог та мапа об’єктів оренди</h1>
+      <p class="eyebrow">Комунальне майно Полтави</p>
+      <h1>Комунальне майно має бути видимим і зрозумілим</h1>
       <p class="intro">
-        Збагачений перелік 553 об’єктів оренди (набір міста <code>P3-01</code> + API Prozorro.Продажі): адреси, площі, статуси, балансоутримувачі, історія аукціонів та ознаки ризику.
-        Перелік охоплює лише об’єкти, внесені до Prozorro.Продажі, і не є повним реєстром усього майна громади.
+        Мета CivicTrace — допомогти бізнесу знаходити приміщення для оренди, а громаді — бачити, як комунальне майно передається в оренду та що відбувається на аукціонах.
       </p>
+      <p class="small-note" style="max-width:720px;margin:12px 0 0;">Міські дані та Prozorro.Продажі зведені так, щоб потрібний об’єкт і його історію було легше знайти та перевірити.</p>
       <div class="hero-actions">
-        <a class="button" href="./analytics.html">Аналітика і сигнали ризику</a>
+        <a class="button" href="./analytics.html">Огляд оренди й сигнали для перевірки</a>
         <a class="button button-secondary" href="./map.html">Відкрити карту</a>
+      </div>
+    </section>
+
+    <section class="panel how-it-works" aria-labelledby="how-it-works-title">
+      <h2 id="how-it-works-title">Звідки беруться дані й що робить CivicTrace</h2>
+      <ol>
+        <li><strong>Міський перелік</strong><span>Дає початкові ID об’єктів оренди та короткі назви.</span></li>
+        <li><strong>Звірка з API Prozorro.Продажі</strong><span>Зіставляємо ID зі знайденими записами, додаємо відомості про об’єкти та пов’язані аукціони. Не для кожного ID джерело повертає всі поля.</span></li>
+        <li><strong>Каталог, карта й аналітика</strong><span>Зводимо знайдене за об’єктом, додаємо фільтри та позначаємо сигнали, які варто перевірити.</span></li>
+      </ol>
+      <p class="small-note">У картках видно, звідки взялися відомості. Якщо у джерелі бракує даних або координат, ми окремо показуємо, чого саме не вдалося знайти.</p>
+    </section>
+
+    <section class="use-cases" aria-label="Практичні сценарії">
+      <h2>Що тут можна зробити</h2>
+      <div class="use-case-grid">
+        <article class="panel"><h3>Шукаю приміщення</h3><p>Відфільтруйте записи за районом, площею та статусом, відкрийте картку й перейдіть до Prozorro.Продажі за умовами першоджерела.</p><a href="#catalog-search">Перейти до пошуку ↓</a></article>
+        <article class="panel"><h3>Перевіряю об’єкт</h3><p>Знайдіть його за адресою або ID, подивіться балансоутримувача, статус, координати, аукціони й пояснення сигналів.</p><a href="#catalog-search">Знайти в каталозі ↓</a></article>
+        <article class="panel"><h3>Оцінюю картину загалом</h3><p>Перегляньте розподіл за статусами та роками, якість даних і випадки для ручної перевірки.</p><a href="./analytics.html">Відкрити аналітику →</a></article>
       </div>
     </section>
 
     <section id="kpi-strip" class="kpi-strip" aria-label="Ключові показники"></section>
 
-    <section>
+    <section id="catalog-search">
       <div class="section-heading" style="margin-bottom:10px;">
-        <h2 style="margin:0;">Пошук і фільтри</h2>
+        <div><h2 style="margin:0;">Знайти об’єкт</h2><p class="small-note" style="margin:4px 0 0;">Експорт завантажує увесь перелік; поточні фільтри до файлу не застосовуються.</p></div>
         <div class="export-actions">
-          <button type="button" id="export-csv" class="button button-secondary button-sm">Експорт збагаченого CSV (для міста)</button>
-          <button type="button" id="export-json" class="button button-secondary button-sm">JSON</button>
+          <button type="button" id="export-csv" class="button button-secondary button-sm">Завантажити таблицю CSV</button>
+          <button type="button" id="export-json" class="button button-secondary button-sm" title="Структурований формат для інтеграцій і обробки програмами">JSON для розробників</button>
         </div>
       </div>
 
       <form id="filters" class="panel" role="search">
         <fieldset class="catalog-controls" disabled>
           <div class="search-field">
-            <label for="search">Пошук (OCID, адреса, назва, балансоутримувач)</label>
+            <label for="search">Пошук (ID об’єкта, адреса, назва, балансоутримувач)</label>
             <input id="search" type="search" placeholder="Наприклад: Соборності або RGL001-UA-2022...">
           </div>
           <div>
@@ -59,15 +78,15 @@
               <option value="free">Вільне</option>
               <option value="on_auction">На аукціоні</option>
               <option value="rented">В оренді</option>
-              <option value="unknown">Не збагачено</option>
+              <option value="unknown">Статус не визначено</option>
             </select>
           </div>
           <div>
             <label for="list-type">Тип переліку</label>
             <select id="list-type">
               <option value="">Усі переліки</option>
-              <option value="first">1-й тип (аукціон)</option>
-              <option value="second">2-й тип (без аукціону)</option>
+              <option value="first">1-й тип (передача через аукціон)</option>
+              <option value="second">2-й тип (можлива передача без аукціону за законом)</option>
             </select>
           </div>
           <div>
@@ -98,17 +117,17 @@
           <div>
             <label for="sort-by">Сортування</label>
             <select id="sort-by">
-              <option value="year_desc">Спершу збагачені та новіші</option>
+              <option value="year_desc">Спершу з даними джерела та новіші</option>
               <option value="area_desc">Площа: спадання</option>
               <option value="area_asc">Площа: зростання</option>
-              <option value="ocid_asc">За OCID</option>
+              <option value="ocid_asc">За ID об’єкта</option>
             </select>
           </div>
 
           <div class="catalog-actions">
             <div style="display:flex;gap:16px;flex-wrap:wrap;">
-              <label class="checkbox-field"><input type="checkbox" id="only-unenriched"><span>Лише незбагачені (Ф3.1-01)</span></label>
-              <label class="checkbox-field"><input type="checkbox" id="only-defects"><span>Лише з дефектами набору P3-01</span></label>
+              <label class="checkbox-field"><input type="checkbox" id="only-unenriched"><span>Лише записи без даних Prozorro.Продажі</span></label>
+              <label class="checkbox-field"><input type="checkbox" id="only-defects"><span>Лише записи з проблемами у вихідному переліку</span></label>
             </div>
             <button type="reset" class="button button-secondary button-sm">Скинути</button>
           </div>
@@ -140,7 +159,7 @@
 
   <footer class="container site-footer">
     <span class="brand"><img class="brand-logo" src="./favicon.ico" alt="">CivicTrace</span>
-    <span>Трек 3 · Комунальне майно Полтави · <a href="./import.html" class="muted">Адміністрування</a></span>
+    <span>Міський перелік + дані Prozorro.Продажі · <a href="./import.html" class="muted">Вхід адміністратора</a></span>
   </footer>
 </body>
 </html>

@@ -7,7 +7,7 @@
   <title>Адміністрування — CivicTrace</title>
   <link rel="icon" type="image/x-icon" href="./favicon.ico">
   <link rel="stylesheet" href="./styles.css">
-  <script type="module" src="./js/import-page.js"></script>
+  <script type="module" src="./js/import-page.js?v=2"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">До вмісту</a>
@@ -20,7 +20,7 @@
     <section class="hero">
       <p class="eyebrow">Закритий доступ</p>
       <h1>Адміністрування CivicTrace</h1>
-      <p class="intro">Публічний каталог і аналітика відкриті без облікового запису. Адміністратор входить, щоб запускати синхронізацію даних.</p>
+      <p class="intro">Публічний каталог і аналітика відкриті гостям. Ця сторінка потрібна лише адміністратору для оновлення даних із Prozorro.Продажі.</p>
     </section>
 
     <section class="panel" style="padding:22px;max-width:500px;">
@@ -39,8 +39,9 @@
     </section>
 
     <section id="admin-workspace" hidden class="panel" style="padding:22px;margin-top:20px;">
-      <h2 style="margin-top:0;">Запустити повне збагачення 553 об’єктів і аукціонів</h2>
-      <p class="small-note">Читає <code>procedure.prozorro.sale/api</code>, оновлює адреси, площі, координати, договори, аукціони та перераховує 5 індикаторів ризику.</p>
+      <h2 style="margin-top:0;">Оновити дані з Prozorro.Продажі</h2>
+      <p>Міський файл задає список ID об’єктів. Синхронізація шукає відповідні записи у відкритому API, оновлює дані об’єктів і додає пов’язані аукціони. Потім CivicTrace оновлює карту та сигнали для перевірки.</p>
+      <p class="small-note">Сервер також запускає синхронізацію автоматично приблизно кожні 30 хвилин. Ручне оновлення працює у фоні: можна перейти на іншу сторінку й повернутися сюди, щоб побачити стан. Якщо API не повернуло дані для ID, запис залишиться в каталозі з позначкою про неповні відомості.</p>
       <button type="button" id="sync-btn" class="button">Запустити синхронізацію з Prozorro.Продажі API</button>
       <div id="sync-status" style="margin-top:12px;" aria-live="polite"></div>
     </section>

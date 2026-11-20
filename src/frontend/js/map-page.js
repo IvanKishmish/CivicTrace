@@ -29,13 +29,22 @@ function apply() {
   const filtered = allPoints.filter((p) => (!st || p.statusCode === st) && (!minA || (p.areaSqm ?? 0) >= minA) && (!riskOnly || p.riskScore > 0));
 
   statsEl.innerHTML = `
-    Усього в P3-01: <strong>${mapMeta.totalObjects}</strong> ·
-    На мапі зараз: <strong>${filtered.length}</strong> (із ${mapMeta.mappedCount} геокодованих; із сигналами: ${allPoints.filter((p) => p.riskScore > 0).length}) ·
-    Негеокодованих: <strong>${mapMeta.ungeocodedPercent}%</strong> (з адресою без GPS: ${mapMeta.unmappedWithAddressCount}, без адреси/збагачення: ${mapMeta.unmappedWithoutAddressCount})
+    У вихідному переліку: <strong>${mapMeta.totalObjects}</strong> ·
+    Показано за фільтрами: <strong>${filtered.length}</strong> із ${mapMeta.mappedCount} об’єктів із координатами ·
+    Із сигналами для перевірки: ${allPoints.filter((p) => p.riskScore > 0).length} ·
+    Без точки на мапі: <strong>${mapMeta.ungeocodedPercent}%</strong> (${mapMeta.unmappedWithAddressCount} мають адресу без координат, ${mapMeta.unmappedWithoutAddressCount} без адреси або даних джерела)
   `;
 
   if (handle) handle.destroy();
+  handle = null;
+  if (filtered.length === 0) {
+    const emptyMessage = allPoints.length === 0
+      ? '<div class="empty-state"><h3>У списку ще немає об’єктів із координатами</h3><p>Перегляньте каталог: записи без координат можна знайти за адресою або ID. Синхронізація може додати координати, якщо вони є у джерелі.</p></div>'
+      : '<div class="empty-state"><h3>За цими фільтрами точок немає</h3><p>Для вибраного статусу, площі та сигналів не знайдено об’єктів із координатами. Скиньте фільтри або відкрийте каталог.</p></div>';
+    mapContainer.innerHTML = emptyMessage;
+  } else {
   handle = renderMapWidget(mapContainer, filtered, { scrollWheelZoom: true });
+  }
 
   listEl.innerHTML = filtered.slice(0, 40).map((p) => `
     <div class="panel" style="padding:12px;margin-bottom:8px;">

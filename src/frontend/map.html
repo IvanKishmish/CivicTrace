@@ -20,9 +20,9 @@
   <div class="mock-banner"><div class="container banner-row" id="map-mode" aria-live="polite">Мапа об’єктів</div></div>
   <main id="main" class="container page-intro">
     <section class="hero" style="margin-bottom:18px;">
-      <p class="eyebrow">Кейс 3.1 · Вимога Ф3.1-02</p>
+      <p class="eyebrow">Майно Полтави · розташування об’єктів</p>
       <h1>Мапа об’єктів комунальної оренди Полтави</h1>
-      <p class="intro">Зелені — вільні об’єкти, сині — на аукціоні, бурштинові — в оренді, червоні — є сигнали ризику для перевірки. Сигнали не є висновком про порушення; об’єкти без координат підраховані окремо.</p>
+      <p class="intro">Колір показує статус об’єкта, червоне кільце — наявність сигналу для перевірки. Наявність сигналу не доводить порушення. Записи без координат показані окремо.</p>
     </section>
 
     <div class="panel" style="padding:14px;margin-bottom:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:end;">
@@ -47,6 +47,11 @@
         <button type="button" id="refresh-map" class="button button-secondary button-sm">Оновити дані карти</button>
       </div>
     </div>
+
+    <div class="map-legend small-note" aria-label="Легенда карти">
+      <span><i class="legend-dot legend-free"></i>Вільне</span><span><i class="legend-dot legend-auction"></i>На аукціоні</span><span><i class="legend-dot legend-rented"></i>В оренді</span><span><i class="legend-dot legend-unknown"></i>Статус невідомий</span><span><i class="legend-ring"></i>Є сигнал для перевірки</span>
+    </div>
+    <p class="small-note map-basemap-note">Кольорові кружки — записи CivicTrace. Світло-зелені ділянки підкладки карти позначають парки та зелені зони, а не вільні приміщення.</p>
 
     <div class="detail-grid" style="margin-top:0;">
       <section class="panel" style="padding:14px;"><div id="full-map" class="map-box map-box-lg"></div></section>

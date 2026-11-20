@@ -42,11 +42,11 @@ export function renderLastUpdatedBanner(el, lastUpdatedAt, extraText = '') {
   if (!el) return;
   const dateText = lastUpdatedAt
     ? new Date(lastUpdatedAt).toLocaleString('uk-UA')
-    : 'Стартовий набір P3-01 (очікує збагачення)';
+    : 'Час оновлення ще не отримано';
   el.innerHTML = `
     <span class="status-pill">
       <span class="live-dot" aria-hidden="true"></span>
-      <span>Дані Полтави: набір P3-01 + Prozorro.Продажі</span>
+      <span>Оренда комунального майна Полтави · джерело даних Prozorro.Продажі</span>
     </span>
     <span class="small-note">Останнє оновлення: <strong>${escapeHtml(dateText)}</strong>${extraText ? ` · ${escapeHtml(extraText)}` : ''}</span>
   `;

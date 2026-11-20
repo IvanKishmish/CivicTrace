@@ -107,13 +107,20 @@ export async function logoutAdmin() {
   } finally { clearAuthState(); }
 }
 
-export async function triggerRentalSync(maxBatchesPerSlice = 60, signal) {
+export async function triggerRentalSync() {
   if (!authState.accessToken) throw new Error('Потрібен вхід адміністратора.');
   const res = await fetch(`${CONFIG.apiBaseUrl}/rentals/sync`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authState.accessToken}` },
-    body: JSON.stringify({ maxBatchesPerSlice }),
-    signal
+    headers: { Authorization: `Bearer ${authState.accessToken}` }
+  });
+  if (!res.ok) throw new Error(await parseError(res));
+  return await res.json();
+}
+
+export async function fetchRentalSyncStatus(jobId) {
+  if (!authState.accessToken) throw new Error('Сесія адміністратора завершилася. Увійдіть знову.');
+  const res = await fetch(`${CONFIG.apiBaseUrl}/rentals/sync/${encodeURIComponent(jobId)}`, {
+    headers: { Authorization: `Bearer ${authState.accessToken}` }
   });
   if (!res.ok) throw new Error(await parseError(res));
   return await res.json();
