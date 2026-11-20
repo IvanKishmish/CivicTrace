@@ -11,7 +11,7 @@ const ocid = new URLSearchParams(location.search).get('id');
 
 async function load() {
   if (!ocid) {
-    detailEl.innerHTML = '<section class="panel empty-state"><h2>Не вказано OCID об’єкта</h2><p><a href="./index.html">До каталогу</a></p></section>';
+    detailEl.innerHTML = '<section class="panel empty-state"><h2>Не вказано ID об’єкта</h2><p><a href="./index.html">До каталогу</a></p></section>';
     return;
   }
 
@@ -67,9 +67,9 @@ async function load() {
       </div>
       <h1 class="page-title">${escapeHtml(r.title)}</h1>
       <div class="small-note">
-        OCID: <strong>${escapeHtml(r.ocid)}</strong>
+        ID об’єкта в Prozorro.Продажі: <strong>${escapeHtml(r.ocid)}</strong>
         ${r.apiId ? ` · API ID: <code>${escapeHtml(r.apiId)}</code>` : ''}
-        · Назва в P3-01: <em>«${escapeHtml(r.rawTitle)}»</em>
+        · Початкова назва у переліку міста: <em>«${escapeHtml(r.rawTitle)}»</em>
       </div>
     </div>
 
@@ -78,7 +78,7 @@ async function load() {
         <section class="panel">
           <h2>Відомості про об’єкт оренди</h2>
           <dl class="facts">
-            <div><dt>Адреса</dt><dd>${escapeHtml(r.address || 'Ще не збагачено')}${r.district ? `<br><span class="small-note">${escapeHtml(r.district)}</span>` : ''}</dd></div>
+            <div><dt>Адреса</dt><dd>${escapeHtml(r.address || (r.enrichmentStatus === 'NotFoundInApi' ? 'API не повернуло адресу' : 'Адресу не знайдено'))}${r.district ? `<br><span class="small-note">${escapeHtml(r.district)}</span>` : ''}</dd></div>
             <div><dt>Площа</dt><dd><strong>${escapeHtml(formatArea(r.areaSqm))}</strong></dd></div>
             <div><dt>Балансоутримувач</dt><dd>${escapeHtml(r.propertyOwnerName || 'Не вказано')}${r.propertyOwnerEdrpou ? `<br><span class="small-note">ЄДРПОУ ${escapeHtml(r.propertyOwnerEdrpou)}</span>` : ''}</dd></div>
             <div><dt>Орендодавець</dt><dd>${escapeHtml(r.sellingEntityName || 'Не вказано')}${r.sellingEntityEdrpou ? `<br><span class="small-note">ЄДРПОУ ${escapeHtml(r.sellingEntityEdrpou)}</span>` : ''}</dd></div>
@@ -112,7 +112,7 @@ async function load() {
         </section>
 
         <section class="panel">
-          <h2>Якість та дефекти даних P3-01</h2>
+          <h2>Якість вихідних даних міського переліку</h2>
           ${r.dataDefectsNotes ? `<div class="notice">${escapeHtml(r.dataDefectsNotes)}</div>` : '<p class="small-note">Дефектів URL/назви у цьому рядку не виявлено.</p>'}
           <p class="small-note">Оригінальне посилання з Excel: <code>${escapeHtml(r.originalUrl)}</code></p>
         </section>

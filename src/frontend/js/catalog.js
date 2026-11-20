@@ -62,8 +62,10 @@ function renderCards(items) {
   resultsEl.innerHTML = items.map((r) => {
     const url = safeUrl(r.canonicalUrl);
     const enrichedBadge = r.enrichmentStatus === 'Enriched'
-      ? '<span class="badge badge-info">Збагачено з API</span>'
-      : '<span class="badge badge-warn">Очікує збагачення</span>';
+      ? '<span class="badge badge-info">Дані Prozorro.Продажі знайдено</span>'
+      : r.enrichmentStatus === 'NotFoundInApi'
+        ? '<span class="badge badge-warn">ID не знайдено в API</span>'
+        : '<span class="badge badge-warn">Ще не звірено з API</span>';
 
     return `
       <article class="panel procurement-card">
@@ -86,7 +88,7 @@ function renderCards(items) {
           </div>
           <div>
             <span class="fact-label">Адреса</span>
-            <strong>${escapeHtml(r.address || 'Ще не збагачено')}</strong>
+            <strong>${escapeHtml(r.address || (r.enrichmentStatus === 'NotFoundInApi' ? 'API не повернуло адресу' : 'Адресу не знайдено'))}</strong>
           </div>
           <div>
             <span class="fact-label">Балансоутримувач / Договір</span>
@@ -97,7 +99,7 @@ function renderCards(items) {
         <div class="small-note" style="margin-bottom:10px;">
           ${escapeHtml(coordStatusText(r.coordinatesStatus, r.hasCoordinates))}
           ${r.auctions.length ? ` · Аукціонів: <strong>${r.auctions.length}</strong>` : ''}
-          ${r.dataDefectsNotes ? ` · <span style="color:var(--amber);">Дефект набору P3-01: ${escapeHtml(r.dataDefectsNotes)}</span>` : ''}
+          ${r.dataDefectsNotes ? ` · <span style="color:var(--amber);">Проблема у вихідному переліку міста: ${escapeHtml(r.dataDefectsNotes)}</span>` : ''}
         </div>
 
         <div class="card-bottom">
@@ -181,16 +183,17 @@ async function refreshMap({ automatic = false } = {}) {
 async function initSummary() {
   try {
     const analytics = await fetchRentalAnalytics();
-    renderLastUpdatedBanner(bannerEl, analytics.lastUpdatedAt, `Збагачено ${analytics.enrichedCount} із ${analytics.totalObjects}`);
+    renderLastUpdatedBanner(bannerEl, analytics.lastUpdatedAt, `Дані Prozorro.Продажі знайдено для ${analytics.enrichedCount} із ${analytics.totalObjects} записів`);
 
     const freeCount = analytics.byStatus.find((s) => s.key === 'free')?.count ?? 0;
     const rentedCount = analytics.byStatus.find((s) => s.key === 'rented')?.count ?? 0;
+    const unknownCount = analytics.byStatus.find((s) => s.key === 'unknown')?.count ?? 0;
 
     kpiEl.innerHTML = `
-      <div class="panel kpi-card"><span>Об’єктів у переліку P3-01</span><strong>${analytics.totalObjects}</strong></div>
-      <div class="panel kpi-card"><span>Збагачено з Prozorro.Продажі</span><strong>${analytics.enrichedCount}</strong></div>
-      <div class="panel kpi-card"><span>Вільні / В оренді</span><strong>${freeCount} / ${rentedCount}</strong></div>
-      <div class="panel kpi-card"><span>Загальна відома площа</span><strong>${escapeHtml(formatArea(analytics.totalAreaSqm))}</strong></div>
+      <div class="panel kpi-card"><span>Об’єктів у міському списку</span><strong>${analytics.totalObjects}</strong><div class="small-note">Ця кількість не змінюється під час синхронізації: API оновлює відомості й аукціони для цих ID</div></div>
+      <div class="panel kpi-card"><span>Знайдено дані Prozorro.Продажі</span><strong>${analytics.enrichedCount} / ${analytics.totalObjects}</strong><div class="small-note">Для решти записів дані ще не зіставлено</div></div>
+      <div class="panel kpi-card"><span>Вільні / в оренді</span><strong>${freeCount} / ${rentedCount}</strong><div class="small-note">Ще ${unknownCount} записів мають невизначений статус</div></div>
+      <div class="panel kpi-card"><span>Сума відомих площ</span><strong>${escapeHtml(formatArea(analytics.totalAreaSqm))}</strong><div class="small-note">Не загальна площа всього майна міста</div></div>
     `;
 
     for (const t of analytics.byObjectType) {

@@ -14,12 +14,13 @@ export function groupPointsByCoords(points) {
 }
 
 function pinColor(statusCode, riskScore = 0) {
-  if (riskScore > 0) return '#a63838';
-  if (statusCode === 'free') return '#256149';
-  if (statusCode === 'on_auction') return '#23536b';
-  if (statusCode === 'rented') return '#896122';
-  return '#66756e';
+  if (statusCode === 'free') return '#00a86b';
+  if (statusCode === 'on_auction') return '#1688f0';
+  if (statusCode === 'rented') return '#f08c00';
+  return '#687386';
 }
+
+const riskOutline = '#e11d48';
 
 function popupHtml(item, shared = false) {
   return `
@@ -57,7 +58,17 @@ function renderLeaflet(container, groups, options) {
   const L = window.L;
   const center = groups.length === 1 ? [groups[0].latitude, groups[0].longitude] : CONFIG.poltavaCenter;
   const map = L.map(container, { scrollWheelZoom: Boolean(options.scrollWheelZoom) }).setView(center, options.zoom || CONFIG.defaultZoom);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+  const warning = document.createElement('div');
+  warning.className = 'map-tile-warning';
+  warning.hidden = true;
+  warning.textContent = 'Підкладка карти завантажилась не повністю. Точки залишаються доступними.';
+  container.append(warning);
+  const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+  let tileErrors = 0;
+  tiles.on('tileerror', () => { tileErrors += 1; if (tileErrors >= 3) warning.hidden = false; });
+  tiles.on('tileload', () => { tileErrors = Math.max(0, tileErrors - 1); if (tileErrors === 0) warning.hidden = true; });
+  requestAnimationFrame(() => map.invalidateSize());
+  setTimeout(() => map.invalidateSize(), 250);
 
   const markerById = new Map();
   const bounds = [];
@@ -68,14 +79,14 @@ function renderLeaflet(container, groups, options) {
 
     if (group.items.length === 1) {
       const item = group.items[0];
-      const marker = L.circleMarker(basePos, { radius: 8, color: '#fff', weight: 2, fillColor: pinColor(item.statusCode, item.riskScore), fillOpacity: 0.92 }).addTo(map);
+      const marker = L.circleMarker(basePos, { radius: 8, color: item.riskScore > 0 ? riskOutline : '#fff', weight: item.riskScore > 0 ? 3 : 2, fillColor: pinColor(item.statusCode), fillOpacity: 0.98 }).addTo(map);
       marker.bindPopup(popupHtml(item, false), { maxWidth: 320 });
       markerById.set(item.ocid, { marker, pos: basePos });
       continue;
     }
 
     const hasRisk = group.items.some((item) => item.riskScore > 0);
-    const icon = L.divIcon({ className: 'civic-cluster-icon', html: `<div class="cluster-pin${hasRisk ? ' cluster-pin-risk' : ''}">${group.items.length}</div>`, iconSize: [30, 30], iconAnchor: [15, 15] });
+    const icon = L.divIcon({ className: 'civic-cluster-icon', html: `<div class="cluster-pin" style="background:${pinColor(group.items[0].statusCode)};border:${hasRisk ? `3px solid ${riskOutline}` : '2px solid #fff'}">${group.items.length}</div>`, iconSize: [30, 30], iconAnchor: [15, 15] });
     const centerMarker = L.marker(basePos, { icon }).addTo(map);
     centerMarker.bindPopup(group.items.slice(0, 12).map((i) => popupHtml(i, false)).join(''), { maxWidth: 320 });
 
@@ -85,7 +96,7 @@ function renderLeaflet(container, groups, options) {
       const pos = [group.latitude + 0.00045 * Math.sin(angle), group.longitude + 0.0007 * Math.cos(angle)];
       bounds.push(pos);
       L.polyline([basePos, pos], { color: '#66756e', weight: 1.2, dashArray: '3, 4', opacity: 0.7 }).addTo(map);
-      const marker = L.circleMarker(pos, { radius: 7, color: '#fff', weight: 2, fillColor: pinColor(item.statusCode, item.riskScore), fillOpacity: 0.94 }).addTo(map);
+      const marker = L.circleMarker(pos, { radius: 7, color: item.riskScore > 0 ? riskOutline : '#fff', weight: item.riskScore > 0 ? 3 : 2, fillColor: pinColor(item.statusCode), fillOpacity: 0.98 }).addTo(map);
       marker.bindPopup(popupHtml(item, true), { maxWidth: 320 });
       markerById.set(item.ocid, { marker, pos });
     });
@@ -119,9 +130,10 @@ function renderOfflineSvg(container, groups) {
 
   const pins = groups.map((g, idx) => {
     const [x, y] = project(g.latitude, g.longitude);
-    const fill = pinColor(g.items[0].statusCode, g.items.some((item) => item.riskScore > 0) ? 1 : 0);
+    const fill = pinColor(g.items[0].statusCode);
+    const hasRisk = g.items.some((item) => item.riskScore > 0);
     return `<g class="svg-pin" data-idx="${idx}" tabindex="0" role="button" style="cursor:pointer;">
-      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${g.items.length > 1 ? 14 : 9}" fill="${fill}" stroke="#fff" stroke-width="2"></circle>
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${g.items.length > 1 ? 14 : 9}" fill="${fill}" stroke="${hasRisk ? riskOutline : '#fff'}" stroke-width="${hasRisk ? 4 : 2}"></circle>
       ${g.items.length > 1 ? `<text x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">${g.items.length}</text>` : ''}
     </g>`;
   }).join('');

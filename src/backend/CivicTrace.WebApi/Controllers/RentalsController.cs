@@ -8,10 +8,11 @@ using CivicTrace.Application.Features.Rentals.Queries.GetRentals;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using CivicTrace.WebApi.Services;
 
 namespace CivicTrace.WebApi.Controllers;
 
-public sealed class RentalsController(IMediator mediator) : ApiController(mediator)
+public sealed class RentalsController(IMediator mediator, RentalSyncJobService syncJobs) : ApiController(mediator)
 {
     [HttpGet]
     [AllowAnonymous]
@@ -85,8 +86,14 @@ public sealed class RentalsController(IMediator mediator) : ApiController(mediat
 
     [HttpPost("sync")]
     [Authorize(Roles = Roles.Admin)]
-    public async Task<IActionResult> Sync([FromBody] SyncRentalsRequest? request = null, CancellationToken ct = default)
-        => HandleResult(await Mediator.Send(new SyncRentalsCommand(request?.MaxBatchesPerSlice ?? 30), ct));
-}
+    public IActionResult Sync()
+    {
+        var job = syncJobs.Start();
+        return AcceptedAtAction(nameof(GetSyncStatus), new { jobId = job.JobId }, job);
+    }
 
-public sealed record SyncRentalsRequest(int? MaxBatchesPerSlice = null);
+    [HttpGet("sync/{jobId:guid}")]
+    [Authorize(Roles = Roles.Admin)]
+    public IActionResult GetSyncStatus(Guid jobId)
+        => syncJobs.TryGet(jobId, out var job) ? Ok(job) : NotFound(new { message = "Завдання синхронізації не знайдено або його вже прибрано." });
+}

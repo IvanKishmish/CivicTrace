@@ -1,6 +1,7 @@
 import { CONFIG } from './config.js';
 
 let authState = { accessToken: null, email: null, userId: null, roles: [] };
+const SESSION_HINT_KEY = 'civictrace-admin-session';
 
 export function getAuthState() {
   return { ...authState, isAuthenticated: Boolean(authState.accessToken) };
@@ -8,6 +9,7 @@ export function getAuthState() {
 
 export function clearAuthState() {
   authState = { accessToken: null, email: null, userId: null, roles: [] };
+  try { localStorage.removeItem(SESSION_HINT_KEY); } catch {}
   window.dispatchEvent(new Event('civictrace-auth'));
 }
 
@@ -23,6 +25,7 @@ function setAccessToken(token) {
   const payload = decodeJwtPayload(token);
   const rawRoles = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ?? payload.role ?? [];
   const roles = Array.isArray(rawRoles) ? rawRoles : rawRoles ? [rawRoles] : [];
+  try { localStorage.setItem(SESSION_HINT_KEY, '1'); } catch {}
   authState = { accessToken: token, email: payload.email ?? null, userId: payload.sub ?? null, roles };
   window.dispatchEvent(new Event("civictrace-auth"));
   return getAuthState();
@@ -83,7 +86,9 @@ export async function loginAdmin(email, password) {
 
 export async function tryRefreshSession() {
   try {
+    if (localStorage.getItem(SESSION_HINT_KEY) !== '1') return null;
     const res = await fetch(`${CONFIG.apiBaseUrl}/auth/refresh`, { method: 'POST', credentials: 'include' });
+    if (res.status === 401 || res.status === 403) localStorage.removeItem(SESSION_HINT_KEY);
     if (!res.ok) return null;
     const data = await res.json();
     return setAccessToken(data.accessToken);
@@ -102,13 +107,20 @@ export async function logoutAdmin() {
   } finally { clearAuthState(); }
 }
 
-export async function triggerRentalSync(maxBatchesPerSlice = 60, signal) {
+export async function triggerRentalSync() {
   if (!authState.accessToken) throw new Error('Потрібен вхід адміністратора.');
   const res = await fetch(`${CONFIG.apiBaseUrl}/rentals/sync`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authState.accessToken}` },
-    body: JSON.stringify({ maxBatchesPerSlice }),
-    signal
+    headers: { Authorization: `Bearer ${authState.accessToken}` }
+  });
+  if (!res.ok) throw new Error(await parseError(res));
+  return await res.json();
+}
+
+export async function fetchRentalSyncStatus(jobId) {
+  if (!authState.accessToken) throw new Error('Сесія адміністратора завершилася. Увійдіть знову.');
+  const res = await fetch(`${CONFIG.apiBaseUrl}/rentals/sync/${encodeURIComponent(jobId)}`, {
+    headers: { Authorization: `Bearer ${authState.accessToken}` }
   });
   if (!res.ok) throw new Error(await parseError(res));
   return await res.json();

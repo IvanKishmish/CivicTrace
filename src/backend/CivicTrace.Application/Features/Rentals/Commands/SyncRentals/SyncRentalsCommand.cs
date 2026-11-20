@@ -31,8 +31,22 @@ public sealed partial class SyncRentalsCommandHandler(
 {
     private const string PoltavaOwnerEdrpou = "13967034";
     private static readonly JsonSerializerOptions JsonOpts = new(JsonSerializerDefaults.Web);
+    private static readonly SemaphoreSlim SyncGate = new(1, 1);
 
     public async ValueTask<ErrorOr<SyncRentalsResponse>> Handle(SyncRentalsCommand command, CancellationToken ct = default)
+    {
+        await SyncGate.WaitAsync(ct);
+        try
+        {
+            return await HandleCore(command, ct);
+        }
+        finally
+        {
+            SyncGate.Release();
+        }
+    }
+
+    private async Task<ErrorOr<SyncRentalsResponse>> HandleCore(SyncRentalsCommand command, CancellationToken ct)
     {
         var objects = await dbContext.RentalObjects.ToListAsync(ct);
         var byOcid = objects.ToDictionary(o => o.Ocid, StringComparer.OrdinalIgnoreCase);
@@ -266,6 +280,8 @@ public sealed partial class SyncRentalsCommandHandler(
 
     private static (string Code, string Label) MapObjectStatus(string? raw, List<SaleContract>? contracts)
     {
+        if (string.Equals(raw, "approved", StringComparison.OrdinalIgnoreCase))
+            return ("unknown", "Затверджено у переліку; доступність не визначено");
         if (raw is "sold" or "rented" || (contracts?.Any(c => c.Status == "active") == true)) return ("rented", "В оренді");
         if (raw is "free" or "available" or "active") return ("free", "Вільне");
         if (raw is "auction" or "tendering") return ("on_auction", "На аукціоні");
