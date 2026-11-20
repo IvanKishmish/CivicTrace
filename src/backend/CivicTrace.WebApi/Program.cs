@@ -7,6 +7,7 @@ using CivicTrace.Persistence.Identity;
 using CivicTrace.Persistence.Prozorro;
 using CivicTrace.Persistence.Seeding;
 using CivicTrace.WebApi;
+using CivicTrace.WebApi.Services;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -47,6 +48,8 @@ try
         .AddDefaultTokenProviders();
     builder.Services.AddProzorroClient(builder.Configuration);
     builder.Services.AddPresentation(builder.Configuration);
+    builder.Services.AddSingleton<RentalSyncJobService>();
+    builder.Services.AddHostedService(provider => provider.GetRequiredService<RentalSyncJobService>());
 
     builder.Services.AddResponseCompression(options =>
     {
