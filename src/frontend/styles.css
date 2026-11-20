@@ -29,6 +29,7 @@ button, input, select { font: inherit; touch-action: manipulation; }
 .site-header { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 12px 0; }
 .brand { text-decoration: none; color: var(--ink); font-weight: 750; font-size: 25px; letter-spacing: -0.8px; display: inline-flex; align-items: center; }
 .brand span { font-weight: 400; }
+.brand-logo { display: block; width: 28px; height: 28px; margin-right: 8px; object-fit: cover; border: 1px solid var(--line); border-radius: 7px; }
 .brand .brand-dot { display: inline-grid; place-items: center; background: var(--accent); color: #fff; margin-left: 9px; width: 26px; height: 26px; font-size: 17px; border-radius: 6px; }
 .site-nav { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .nav-link { font-size: 13px; color: var(--muted); text-decoration: none; padding: 7px 11px; border-radius: 6px; border: 1px solid transparent; }
@@ -167,5 +168,6 @@ body, .panel, .site-header, .nav-link, .mock-banner, input, select {
 [data-theme="dark"] .offline-map-popup { background: var(--white); color: var(--ink); }
 @media (max-width: 680px) { .hero { padding: 24px 16px; } .site-nav { width: 100%; } .nav-link { padding: 9px; } }
 
-.page-intro { padding-top: 24px; }
-@media (max-width: 680px) { .page-intro { padding-top: 16px; } }
+.mock-banner + main.container { padding-top: 20px; }
+.page-intro { padding-top: 20px; }
+@media (max-width: 680px) { .mock-banner + main.container, .page-intro { padding-top: 14px; } }
